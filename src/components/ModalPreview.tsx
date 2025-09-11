@@ -2025,134 +2025,201 @@ const ArtisticTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 p-6">
-      {/* En-tête artistique */}
-      <div className="relative bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 text-white p-8 rounded-3xl shadow-2xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-red-400/20"></div>
-        <div className="absolute top-4 right-4 w-20 h-20 bg-white/10 rounded-full"></div>
-        <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/10 rounded-full"></div>
-        <div className="relative z-10">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+  <div className="bg-gray-200 min-h-screen flex items-center justify-center p-4 ">
+  <div className="bg-white w-full max-w-4xl shadow-xl" style={{ aspectRatio: '210/225' }}>
+    {/* Header with geometric design */}
+    <div className="relative h-32 overflow-hidden">
+      {/* Geometric shapes */}
+      <div className="absolute inset-0">
+        <div className="absolute left-0 top-0 w-80 h-full bg-slate-700" style={{ clipPath: 'polygon(0 0, 60% 0, 45% 100%, 0% 100%)' }}></div>
+        <div className="absolute left-60 top-0 w-80 h-full bg-teal-600" style={{ clipPath: 'polygon(0 0, 55% 0, 40% 100%, 0% 100%)' }}></div>
+        <div className="absolute left-80 top-0 w-80 h-full bg-teal-400" style={{ clipPath: 'polygon(0 0, 50% 0, 35% 100%, 0% 100%)' }}></div>
+        <div className="absolute right-0 top-0 w-40 h-full bg-gray-200" style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0% 100%)' }}></div>
+      </div>
+       {/* Company Logo */}
+       <div className="absolute left-8 top-6 z-10">
+            <div className="text-white">
+              <div className="text-3xl font-bold mb-1">CN</div>
+              <div className="text-xs tracking-wider">COMPANY NAME</div>
+            </div>
+          </div>
+
+          {/* Invoice Title */}
+          <div className="absolute right-8 top-8 z-10">
+            <h1 className="text-2xl font-bold text-gray-700">FACTURE</h1>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="px-8 py-6">
+          {/* Client and Date Information */}
+          <div className="flex justify-between mb-8">
             <div>
-              <h1 className="text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">FACTURly</h1>
-              <p className="text-rose-100 text-lg">Votre partenaire facturation</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2" style={{ fontFamily: 'cursive' }}>Informations du client</h3>
+              <div className="text-xs text-gray-600 leading-relaxed">
+                <div>{invoiceData.clientName}</div>
+                <div>{invoiceData.clientEmail}</div>
+                <div>{invoiceData.clientAddress}</div>
+              </div>
             </div>
-            <div className="text-center sm:text-right">
-              <h2 className="text-4xl font-bold">FACTURE</h2>
-              <p className="text-rose-100">N° {invoiceData.invoiceNumber}</p>
+            <div className="text-right">
+              <div className="mb-3">
+                <div className="text-xl font-semibold text-gray-700 mb-1" style={{ fontFamily: 'cursive' }}>Détails</div>
+        
+                  <div className="flex justify-end gap-1 mb-1 ">
+                      <span className="text-xs ">Date d'émission: </span>
+                      <span className="text-xs text-gray-600">{formatDate(invoiceData.issueDate)}</span>
+                  </div>
+                    
+                <div className="flex justify-end gap-1 mb-1">
+                    <span className="text-xs ">Date d'échéance: </span>
+                    <span className="text-xs text-gray-600">{formatDate(invoiceData.dueDate)}</span>
+                </div>
+                <div className="flex justify-end gap-1 mb-1">
+                    <span className="text-xs">Paiement: </span>
+                    <span className="text-xs text-gray-600">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold text-gray-700 mb-1">Numéro de facture</div>
+                <div className="text-xs text-gray-600">N° {invoiceData.invoiceNumber}</div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Informations client et facture artistiques */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl border-4 border-yellow-300 shadow-lg transform rotate-2">
-          <h3 className="text-xl font-bold text-orange-800 mb-4">🎨 Facturé à</h3>
-          <div className="space-y-2">
-            <p className="text-lg font-semibold text-gray-900">{invoiceData.clientName}</p>
-            <p className="text-orange-700 break-all">{invoiceData.clientEmail}</p>
-            <p className="text-orange-700 whitespace-pre-line">{invoiceData.clientAddress}</p>
-          </div>
-        </div>
+          {/* Items Table */}
+          <div className="mb-8">
+            {/* Table Header */}
+            <div className="bg-teal-600 text-white">
+              <div className="flex py-3 px-4 text-xs font-semibold">
+                <div className="w-12">Nº</div>
+                <div className="flex-1"> Description</div>
+                <div className="w-20 text-center">Qté</div>
+                <div className="w-16 text-center">Prix unit.</div>
+                <div className="w-20 text-right">Total</div>
+              </div>
+            </div>
 
-        <div className="bg-gradient-to-br from-pink-100 to-purple-100 p-6 rounded-2xl border-4 border-pink-300 shadow-lg transform -rotate-2">
-          <h3 className="text-xl font-bold text-pink-800 mb-4">🎭 Détails</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-pink-700">Émission:</span>
-              <span className="font-semibold">{formatDate(invoiceData.issueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-pink-700">Échéance:</span>
-              <span className="font-semibold">{formatDate(invoiceData.dueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-pink-700">Paiement:</span>
-              <span className="font-semibold">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+            
 
-      {/* Tableau artistique */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-4 border-purple-300">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400 text-white">
-              <tr>
-                <th className="px-4 py-3 text-left font-bold">Description</th>
-                <th className="px-4 py-3 text-center font-bold">Qté</th>
-                <th className="px-4 py-3 text-right font-bold">Prix unit.</th>
-                <th className="px-4 py-3 text-right font-bold">Total</th>
-              </tr>
-            </thead>
-            <tbody>
+            {/* Table Rows */}
+            <div className="bg-gray-50">
               {invoiceData.items.map((item, index) => (
-                <tr key={item.id} className={`${index % 2 === 0 ? 'bg-gradient-to-r from-rose-50 to-pink-50' : 'bg-gradient-to-r from-purple-50 to-indigo-50'} hover:bg-gradient-to-r hover:from-yellow-100 hover:to-orange-100`}>
-                  <td className="px-4 py-3">
-                    <div className="break-words text-sm font-medium">
+                <div
+                  key={item.id}
+                  className={`flex py-4 px-4 border-b border-gray-200 ${
+                    index % 2 === 0
+                      ? 'bg-white'
+                      : 'bg-gray-50'
+                  }`}
+                >
+                  <div className="w-12 text-xs text-gray-600">{String(index + 1).padStart(2, '0')}</div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-800 mb-1">
                       {item.description || `Article ${index + 1}`}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm">{item.quantity}</td>
-                  <td className="px-4 py-3 text-right text-sm">
+                  </div>
+                  <div className="w-20 text-center text-xs text-gray-600">{item.quantity}</div>
+                  <div className="w-16 text-center text-xs text-gray-600">
                     {item.unitPrice.toFixed(2)} GNF
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm font-bold">
+                  </div>
+                  <div className="w-20 text-right text-xs text-gray-600">
                     {item.total.toFixed(2)} GNF
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Totaux artistiques */}
-      <div className="flex justify-end">
-        <div className="w-80 bg-gradient-to-r from-rose-100 to-purple-100 p-6 rounded-2xl border-4 border-rose-300 shadow-lg">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-rose-800">Sous-total:</span>
-              <span className="font-bold text-rose-900">{invoiceData.subtotal.toFixed(2)} GNF</span>
-            </div>
-            
-            {invoiceData.includeTax && (
-              <div className="flex justify-between text-sm">
-                <span className="text-rose-800">TVA (20%):</span>
-                <span className="font-bold text-rose-900">{invoiceData.tax.toFixed(2)} GNF</span>
               </div>
+
+
+              {/* Subtotal Row */}
+              <div className="flex py-3 px-4">
+                <div className="flex-1"></div>
+                <div className="w-60 flex justify-between text-sm">
+                  <span className="text-gray-700 font-medium">Sous-total</span>
+                  <span className="text-gray-800">{invoiceData.subtotal.toFixed(2)} GNF</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Totals Section */}
+          <div className="mb-8">
+            <div className="flex justify-end mr-8">
+              <div className="w-100">
+                <div className="flex">
+                  {/* Subtotal */}
+                  <div className="bg-gray-100 p-4 ">
+                    <div className="text-sm font-semibold text-gray-700 mb-1">Sous-total</div>
+                    <div className="text-lg text-gray-800">{invoiceData.subtotal.toFixed(2)} GNF</div>
+                  </div> 
+                  
+                  {/* Tax */}
+                  {invoiceData.includeTax && (
+                  <div className="bg-gray-200 p-4 ">
+                    <div className="text-sm font-semibold text-gray-700 mb-1">TVA (18%):</div>
+                    <div className="text-lg text-gray-800">{invoiceData.tax.toFixed(2)} GNF</div>
+                  </div>
+                  )}
+                  {/* Total */}
+                  <div className="bg-slate-700 p-4  text-white">
+                    <div className="text-sm font-semibold mb-1">Total</div>
+                    <div className="text-lg font-bold">{invoiceData.total.toFixed(2)} GNF</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Thank You */}
+          <div className="text-right mb-8 mr-8">
+            <div className="text-lg font-light text-gray-700 mb-1">Merci </div>
+            <div className="text-sm text-gray-600">pour votre confiance</div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-between">
+            {/* Notes artistiques */}
+          {invoiceData.notes && (
+          <div className="w-1/3 px-8">
+              <div className="mb-4">
+                <div className="text-xl font-semibold text-gray-700 mb-2" style={{ fontFamily: 'cursive' }}>Note</div>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {invoiceData.notes}
+                </p>
+              </div>
+            </div>
             )}
-            
-            <div className="border-t-2 border-rose-300 pt-2">
-              <div className="flex justify-between text-xl font-bold text-purple-800">
-                <span>Total:</span>
-                <span>{invoiceData.total.toFixed(2)} GNF</span>
+       
+
+            {/* Middle Column */}
+            <div className="w-1/3 px-8">
+              <div className="mb-4">
+                <div className="text-xs font-semibold text-gray-700 mb-2">Contact</div>
+                <div className="text-xs text-gray-600 leading-relaxed">
+                  Phone : +62 000 000 000 000
+                  Email : Company@company.com
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="w-1/3">
+              <div className="text-xs font-semibold text-gray-700 mb-2">Personne en charge</div>
+              <div className="mb-4">
+                <div className="text-2xl text-gray-700 mb-2" style={{ fontFamily: 'cursive' }}>
+                  Signature
+                </div>
+                <div className="text-xs text-gray-600">Nom</div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    
+  );
+};
 
-      {/* Notes artistiques */}
-      {invoiceData.notes && (
-        <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl border-4 border-yellow-300 shadow-lg">
-          <h3 className="text-lg font-bold text-orange-800 mb-2">🎨 Notes</h3>
-          <p className="text-orange-700 whitespace-pre-line">{invoiceData.notes}</p>
-        </div>
-      )}
-
-      {/* Pied de page artistique */}
-      <div className="text-center bg-gradient-to-r from-rose-200 via-pink-200 to-purple-200 p-6 rounded-2xl shadow-lg">
-        <p className="font-bold text-purple-800 text-xl">Merci pour votre confiance ! 🎭</p>
-        <p className="text-purple-600">support@facturly.com</p>
-      </div>
-    </div>
-  )
-}
-
-// Fonction pour rendre le template sélectionné
 const renderTemplate = (templateId: TemplateId, invoiceData: InvoiceData) => {
   switch (templateId) {
     case 'classic':

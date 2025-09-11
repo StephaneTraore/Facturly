@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, ArrowRight, Link } from "lucide-react";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
 const Hero = () => {
@@ -40,10 +40,12 @@ const Hero = () => {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4">
+                                 <Link to="/dashboard">
                             <Button variant="hero" size="lg" className="group">
                                 Commencer gratuitement
                                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
+                            </Link>
                             <Button variant="outline" size="lg">
                                 Voir la démo
                             </Button>
