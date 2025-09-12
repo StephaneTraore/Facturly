@@ -329,7 +329,17 @@ function NewFacture() {
                         </TableCell>
                         <TableCell className="sm:table-cell flex-1">
                           <span className="font-semibold sm:hidden">Actions</span>
-                          {/* Place your action buttons here */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            disabled={items.length === 1}
+                            className="text-destructive hover:bg-destructive/10"
+                            aria-label="Supprimer l'article"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
