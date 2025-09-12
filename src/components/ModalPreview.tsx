@@ -1307,123 +1307,168 @@ const TechTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6 bg-slate-900 text-green-400 p-3 sm:p-4 md:p-6 font-mono">
-      {/* En-tête tech */}
-      <div className="bg-slate-800 border border-green-400 p-3 sm:p-4 md:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
-          <div>
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-green-400 mb-1 sm:mb-2">&gt; FACTURly.exe</h1>
-            <p className="text-green-300 text-xs sm:text-sm md:text-base">Votre partenaire facturation</p>
-          </div>
-          <div className="text-center sm:text-right">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-green-400">FACTURE</h2>
-            <p className="text-green-300 text-xs sm:text-sm md:text-base">N° {invoiceData.invoiceNumber}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Informations client et facture tech */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-        <div className="bg-slate-800 border border-green-400 p-3 sm:p-4 md:p-6">
-          <h3 className="text-sm sm:text-base md:text-lg font-bold text-green-400 mb-2 sm:mb-3 md:mb-4">// Facturé à</h3>
-          <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-            <p className="text-green-300 font-semibold">{invoiceData.clientName}</p>
-            <p className="text-green-400 break-all">{invoiceData.clientEmail}</p>
-            <p className="text-green-400 whitespace-pre-line">{invoiceData.clientAddress}</p>
-          </div>
+    <div className="min-h-screen bg-gray-400 p-8 flex items-center justify-center">
+      <div className="max-w-4xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden relative">
+        {/* Decorative Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Top gradient blob */}
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 rounded-full opacity-80 blur-sm transform rotate-12"></div>
+          <div className="absolute top-10 -left-10 w-64 h-64 bg-gradient-to-br from-orange-400 to-pink-400 rounded-full opacity-60"></div>
+          
+          {/* Bottom gradient blobs */}
+          <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-gradient-to-tr from-purple-500 via-pink-400 to-orange-400 rounded-full opacity-70"></div>
+          <div className="absolute bottom-20 right-32 w-32 h-32 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-60"></div>
+          <div className="absolute bottom-40 right-10 w-20 h-20 bg-purple-500 rounded-full opacity-70"></div>
         </div>
 
-        <div className="bg-slate-800 border border-green-400 p-3 sm:p-4 md:p-6">
-          <h3 className="text-sm sm:text-base md:text-lg font-bold text-green-400 mb-2 sm:mb-3 md:mb-4">// Détails</h3>
-          <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-            <div className="flex justify-between">
-              <span className="text-green-300">Émission:</span>
-              <span className="text-green-400">{formatDate(invoiceData.issueDate)}</span>
+        {/* Content */}
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="px-8 py-8">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <div className="flex items-center mb-4">
+                  <div className="grid grid-cols-3 gap-1 mr-3">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-white">LOGO</h1>
+                    <p className="text-sm text-white opacity-80">ENTREPRISE</p>
+                  </div>
+                </div>
+                <div className="text-white text-sm space-y-1 opacity-90">
+                  <p className='text-lg sm:text-xl md:text-2xl font-bold'>FACTURE</p>
+                  <h3 className='text-xs sm:text-sm md:text-base'>N° {invoiceData.invoiceNumber}</h3>
+                  
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-green-300">Échéance:</span>
-              <span className="text-green-400">{formatDate(invoiceData.dueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-green-300">Paiement:</span>
-              <span className="text-green-400">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Tableau tech */}
-      <div className="bg-slate-800 border border-green-400 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-700">
-              <tr>
-                <th className="px-4 py-3 text-left font-bold text-green-400 border-r border-green-400">Description</th>
-                <th className="px-4 py-3 text-center font-bold text-green-400 border-r border-green-400">Qté</th>
-                <th className="px-4 py-3 text-right font-bold text-green-400 border-r border-green-400">Prix unit.</th>
-                <th className="px-4 py-3 text-right font-bold text-green-400">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items.map((item, index) => (
-                <tr key={item.id} className="border-b border-green-400">
-                  <td className="px-4 py-3 border-r border-green-400">
-                    <div className="break-words text-sm text-green-300">
-                      {item.description || `Article ${index + 1}`}
+            {/* Invoice Details */}
+            <div className="bg-white bg-opacity-90 rounded-xl p-6 mb-6">
+              <div className="grid grid-cols-4 gap-8 mb-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Facturé à</h3>
+                  <div className="text-sm text-gray-700">
+                    <p className="font-medium">{invoiceData.clientName}</p>
+                    <p>{invoiceData.clientEmail}</p>
+                    <p>{invoiceData.clientAddress}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Émission:</h3>
+                  <div className="text-sm text-gray-700">
+                    <p>{formatDate(invoiceData.issueDate)}</p>
+                    
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Écheance:</h3>
+                  <div className="text-sm text-gray-700">
+                    <p>{formatDate(invoiceData.dueDate)}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Paiement:</h3>
+                  <div className="text-sm text-gray-700">
+                    <p>{getPaymentTermsText(invoiceData.paymentTerms)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <div className="bg-white bg-opacity-90 rounded-xl overflow-hidden mb-6">
+              {/* Table Header */}
+              <div className="bg-gradient-to-r from-orange-400 via-pink-400 to-purple-500 text-white px-6 py-4">
+                <div className="grid grid-cols-12 gap-4 text-sm font-medium">
+                  
+                  <div className="col-span-5"> DESCRIPTION</div>
+                  <div className="col-span-2 text-center">Qté</div>
+                  <div className="col-span-2 text-center">Prix unit.</div>
+                  <div className="col-span-2 text-right">TOTAL</div>
+                </div>
+              </div>
+
+              {/* Table Rows */}
+              <div className="divide-y divide-gray-200">
+               {invoiceData.items.map((item, index) => (
+                  <div key={item.id} className="grid grid-cols-12 gap-4 px-6 py-3 text-sm">
+                    
+                    <div className="col-span-5 text-gray-800">{item.description || `Article ${index + 1}`}</div>
+                    <div className="col-span-2 text-center text-gray-700">{item.quantity}</div>
+                    <div className="col-span-2 text-center text-gray-700">{item.unitPrice.toFixed(2)} GNF</div>
+                    <div className="col-span-2 text-right font-medium text-gray-800"> {item.total.toFixed(2)} GNF</div>
+                  </div>
+               ))}
+              </div>
+
+              {/* Totals */}
+              <div className="px-6 py-4 bg-gray-50">
+                <div className="flex justify-end">
+                  <div className="w-80 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Sous-total</span>
+                      <span className="font-medium">{invoiceData.subtotal.toFixed(2)} GNF</span>
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-green-400 border-r border-green-400">{item.quantity}</td>
-                  <td className="px-4 py-3 text-right text-sm text-green-400 border-r border-green-400">
-                    {item.unitPrice.toFixed(2)} GNF
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm font-bold text-green-400">
-                    {item.total.toFixed(2)} GNF
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      {/* Totaux tech */}
-      <div className="flex justify-end">
-        <div className="w-80 bg-slate-800 border border-green-400 p-6">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-green-300">Sous-total:</span>
-              <span className="font-bold text-green-400">{invoiceData.subtotal.toFixed(2)} GNF</span>
-            </div>
-            
-            {invoiceData.includeTax && (
-              <div className="flex justify-between text-sm">
-                <span className="text-green-300">TVA (20%):</span>
-                <span className="font-bold text-green-400">{invoiceData.tax.toFixed(2)} GNF</span>
+                    {invoiceData.tax && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Tax (18%)</span>
+                      <span className="font-medium">{invoiceData.tax.toFixed(2)} GNF</span>
+                    </div>
+                    )}
+                    <div className="bg-gradient-to-r from-orange-400 to-pink-400 text-white px-4 py-3 rounded-full flex justify-between font-bold">
+                      <span>Total</span>
+                      <span>{invoiceData.total.toFixed(2)} GNF</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-            
-            <div className="border-t border-green-400 pt-2">
-              <div className="flex justify-between text-xl font-bold text-green-400">
-                <span>Total:</span>
-                <span>{invoiceData.total.toFixed(2)} GNF</span>
+            </div>
+
+            {/* Footer */}
+            <div className="grid grid-cols-2 gap-8">
+              {/* Payment Method */}
+              <div className="bg-gradient-to-br from-purple-500 to-pink-400 text-white p-6 rounded-xl relative overflow-hidden">
+                <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-80"></div>
+                {invoiceData.notes && (
+                 <div className="mb-4">
+                  <h4 className="text-sm font-bold mb-2">Note:</h4>
+                  <p className="text-xs opacity-90 leading-relaxed">
+                    {invoiceData.notes}
+                  </p>
+                </div>
+                )}
+                <h3 className="text-lg font-bold mb-4">Methode Paiement</h3>
+                <div className="text-sm space-y-2 opacity-90">
+                  <div><span className="font-medium">Nº Compte</span> : 0000 0000 0000 0000</div>
+                  <div><span className="font-medium">Nom</span> : abcdefghijklmn</div>
+                  <div><span className="font-medium">Banque</span> : XYZ Banque</div>
+                </div>
+
+               
+              </div>
+
+              {/* Authorized Sign */}
+              <div className="bg-white bg-opacity-60 p-6 rounded-xl flex items-end justify-end">
+                <div className="text-right">
+                  <div className="text-sm text-gray-600 mb-16">Authorised Sign</div>
+                  <div className="w-32 h-px bg-gray-400"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Notes tech */}
-      {invoiceData.notes && (
-        <div className="bg-slate-800 border border-green-400 p-6">
-          <h3 className="text-lg font-bold text-green-400 mb-2">// Notes</h3>
-          <p className="text-green-300 whitespace-pre-line">{invoiceData.notes}</p>
-        </div>
-      )}
-
-      {/* Pied de page tech */}
-      <div className="text-center bg-slate-800 border border-green-400 p-4">
-        <p className="font-bold text-green-400 text-lg">Merci pour votre confiance !</p>
-        <p className="text-green-300">support@facturly.com</p>
       </div>
     </div>
   )
@@ -1881,126 +1926,273 @@ const FuturisticTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-cyan-400 p-3 sm:p-4 md:p-6 font-mono">
-      {/* En-tête futuriste */}
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl border border-cyan-400">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">FACTURly</h1>
-            <p className="text-cyan-100 text-sm sm:text-base md:text-lg">Votre partenaire facturation</p>
+  //   <div className="space-y-3 sm:space-y-4 md:space-y-6 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-cyan-400 p-3 sm:p-4 md:p-6 font-mono">
+  //     {/* En-tête futuriste */}
+  //     <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-4 sm:p-6 md:p-8 rounded-2xl shadow-2xl border border-cyan-400">
+  //       <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+  //         <div>
+  //           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">FACTURly</h1>
+  //           <p className="text-cyan-100 text-sm sm:text-base md:text-lg">Votre partenaire facturation</p>
+  //         </div>
+  //         <div className="text-center sm:text-right">
+  //           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">FACTURE</h2>
+  //           <p className="text-cyan-100 text-sm sm:text-base">N° {invoiceData.invoiceNumber}</p>
+  //         </div>
+  //       </div>
+  //     </div>
+
+  //     {/* Informations client et facture futuristes */}
+  //     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+  //       <div className="bg-slate-800 border border-cyan-400 p-3 sm:p-4 md:p-6 rounded-xl">
+  //         <h3 className="text-sm sm:text-base md:text-xl font-bold text-cyan-400 mb-2 sm:mb-3 md:mb-4">// Facturé à</h3>
+  //         <div className="space-y-1 sm:space-y-2">
+  //           <p className="text-sm sm:text-base md:text-lg font-semibold text-white">{invoiceData.clientName}</p>
+  //           <p className="text-cyan-300 break-all text-xs sm:text-sm md:text-base">{invoiceData.clientEmail}</p>
+  //           <p className="text-cyan-300 whitespace-pre-line text-xs sm:text-sm md:text-base">{invoiceData.clientAddress}</p>
+  //         </div>
+  //       </div>
+
+  //       <div className="bg-slate-800 border border-cyan-400 p-3 sm:p-4 md:p-6 rounded-xl">
+  //         <h3 className="text-sm sm:text-base md:text-xl font-bold text-cyan-400 mb-2 sm:mb-3 md:mb-4">// Détails</h3>
+  //         <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+  //           <div className="flex justify-between">
+  //             <span className="text-cyan-300">Émission:</span>
+  //             <span className="text-white font-semibold">{formatDate(invoiceData.issueDate)}</span>
+  //           </div>
+  //           <div className="flex justify-between">
+  //             <span className="text-cyan-300">Échéance:</span>
+  //             <span className="text-white font-semibold">{formatDate(invoiceData.dueDate)}</span>
+  //           </div>
+  //           <div className="flex justify-between">
+  //             <span className="text-cyan-300">Paiement:</span>
+  //             <span className="text-white font-semibold">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+
+  //     {/* Tableau futuriste */}
+  //     <div className="bg-slate-800 border border-cyan-400 rounded-xl overflow-hidden">
+  //       <div className="overflow-x-auto">
+  //         <table className="w-full">
+  //           <thead className="bg-gradient-to-r from-cyan-600 to-blue-600">
+  //             <tr>
+  //               <th className="px-4 py-3 text-left font-bold text-white">Description</th>
+  //               <th className="px-4 py-3 text-center font-bold text-white">Qté</th>
+  //               <th className="px-4 py-3 text-right font-bold text-white">Prix unit.</th>
+  //               <th className="px-4 py-3 text-right font-bold text-white">Total</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             {invoiceData.items.map((item, index) => (
+  //               <tr key={item.id} className="border-b border-cyan-400 hover:bg-slate-700">
+  //                 <td className="px-4 py-3">
+  //                   <div className="break-words text-sm text-white">
+  //                     {item.description || `Article ${index + 1}`}
+  //                   </div>
+  //                 </td>
+  //                 <td className="px-4 py-3 text-center text-sm text-cyan-300">{item.quantity}</td>
+  //                 <td className="px-4 py-3 text-right text-sm text-cyan-300">
+  //                   {item.unitPrice.toFixed(2)} GNF
+  //                 </td>
+  //                 <td className="px-4 py-3 text-right text-sm font-bold text-cyan-400">
+  //                   {item.total.toFixed(2)} GNF
+  //                 </td>
+  //               </tr>
+  //             ))}
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     </div>
+
+  //     {/* Totaux futuristes */}
+  //     <div className="flex justify-end">
+  //       <div className="w-80 bg-slate-800 border border-cyan-400 p-6 rounded-xl">
+  //         <div className="space-y-2">
+  //           <div className="flex justify-between text-sm">
+  //             <span className="text-cyan-300">Sous-total:</span>
+  //             <span className="font-bold text-white">{invoiceData.subtotal.toFixed(2)} GNF</span>
+  //           </div>
+            
+  //           {invoiceData.includeTax && (
+  //             <div className="flex justify-between text-sm">
+  //               <span className="text-cyan-300">TVA (20%):</span>
+  //               <span className="font-bold text-white">{invoiceData.tax.toFixed(2)} GNF</span>
+  //             </div>
+  //           )}
+            
+  //           <div className="border-t border-cyan-400 pt-2">
+  //             <div className="flex justify-between text-xl font-bold text-cyan-400">
+  //               <span>Total:</span>
+  //               <span>{invoiceData.total.toFixed(2)} GNF</span>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+
+  //     {/* Notes futuristes */}
+  //     {invoiceData.notes && (
+  //       <div className="bg-slate-800 border border-cyan-400 p-6 rounded-xl">
+  //         <h3 className="text-lg font-bold text-cyan-400 mb-2">// Notes</h3>
+  //         <p className="text-cyan-300 whitespace-pre-line">{invoiceData.notes}</p>
+  //       </div>
+  //     )}
+
+  //     {/* Pied de page futuriste */}
+  //     <div className="text-center bg-slate-800 border border-cyan-400 p-4 rounded-xl">
+  //       <p className="font-bold text-cyan-400 text-lg">Merci pour votre confiance !</p>
+  //       <p className="text-cyan-300">support@facturly.com</p>
+  //     </div>
+  //   </div>
+
+       <div className="min-h-screen bg-gradient-to-br from-purple-200 to-indigo-300 p-6 flex items-center justify-center">
+      <div className="max-w-4xl w-full bg-gray-100 shadow-2xl rounded-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-gray-100 px-8 py-8">
+          <div className="flex justify-between items-start mb-8">
+            <div className="flex items-center space-x-4">
+              {/* Logo */}
+              <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 bg-white rounded-full"></div>
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Logo</h1>
+                <h2 className="text-2xl font-bold text-indigo-600">Entreprise</h2>
+              </div>
+            </div>
+            <div className="text-right">
+              <h1 className="text-3xl font-bold text-indigo-600 mb-1">FACTURE</h1>
+              <p className="text-gray-600">N° {invoiceData.invoiceNumber}</p>
+            </div>
           </div>
-          <div className="text-center sm:text-right">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">FACTURE</h2>
-            <p className="text-cyan-100 text-sm sm:text-base">N° {invoiceData.invoiceNumber}</p>
+
+          {/* Address Section */}
+          <div className="grid grid-cols-2 gap-8 mb-8">
+            <div>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p className="font-semibold">Adresse du client</p>
+                <p>{invoiceData.clientName}</p>
+                <p>{invoiceData.clientEmail}</p>
+                <p className="pt-2">{invoiceData.clientAddress}</p>
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-600 space-y-1">
+                <p className="font-semibold">Détails de la facture :</p>
+                <div className="flex gap-1">
+                    <span className="text-gray-600">Émission: </span>
+                    <span className="text-black font-semibold"> {formatDate(invoiceData.issueDate)}</span>
+                </div>
+                <div className="flex gap-1">
+                    <span className="text-gray-600">Échéance: </span>
+                    <span className="text-black font-semibold"> {formatDate(invoiceData.dueDate)}</span>
+                </div>
+                <div className="flex gap-1">
+                    <span className="text-gray-600">Paiement: </span>
+                    <span className="text-black font-semibold"> {getPaymentTermsText(invoiceData.paymentTerms)}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Informations client et facture futuristes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-        <div className="bg-slate-800 border border-cyan-400 p-3 sm:p-4 md:p-6 rounded-xl">
-          <h3 className="text-sm sm:text-base md:text-xl font-bold text-cyan-400 mb-2 sm:mb-3 md:mb-4">// Facturé à</h3>
-          <div className="space-y-1 sm:space-y-2">
-            <p className="text-sm sm:text-base md:text-lg font-semibold text-white">{invoiceData.clientName}</p>
-            <p className="text-cyan-300 break-all text-xs sm:text-sm md:text-base">{invoiceData.clientEmail}</p>
-            <p className="text-cyan-300 whitespace-pre-line text-xs sm:text-sm md:text-base">{invoiceData.clientAddress}</p>
-          </div>
-        </div>
-
-        <div className="bg-slate-800 border border-cyan-400 p-3 sm:p-4 md:p-6 rounded-xl">
-          <h3 className="text-sm sm:text-base md:text-xl font-bold text-cyan-400 mb-2 sm:mb-3 md:mb-4">// Détails</h3>
-          <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-            <div className="flex justify-between">
-              <span className="text-cyan-300">Émission:</span>
-              <span className="text-white font-semibold">{formatDate(invoiceData.issueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-cyan-300">Échéance:</span>
-              <span className="text-white font-semibold">{formatDate(invoiceData.dueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-cyan-300">Paiement:</span>
-              <span className="text-white font-semibold">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
+        {/* Items Table */}
+        <div className="bg-white">
+          {/* Table Header */}
+          <div className="bg-indigo-600 text-white px-8 py-4">
+            <div className="grid grid-cols-12 gap-4 text-sm font-medium">
+              <div className="col-span-6">Description</div>
+              <div className="col-span-2 text-center">Qté</div>
+              <div className="col-span-2 text-center">Prix</div>
+              <div className="col-span-2 text-right">Total</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Tableau futuriste */}
-      <div className="bg-slate-800 border border-cyan-400 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gradient-to-r from-cyan-600 to-blue-600">
-              <tr>
-                <th className="px-4 py-3 text-left font-bold text-white">Description</th>
-                <th className="px-4 py-3 text-center font-bold text-white">Qté</th>
-                <th className="px-4 py-3 text-right font-bold text-white">Prix unit.</th>
-                <th className="px-4 py-3 text-right font-bold text-white">Total</th>
-              </tr>
-            </thead>
-            <tbody>
+          {/* Table Rows */}
+          <div className="px-8">
               {invoiceData.items.map((item, index) => (
-                <tr key={item.id} className="border-b border-cyan-400 hover:bg-slate-700">
-                  <td className="px-4 py-3">
-                    <div className="break-words text-sm text-white">
-                      {item.description || `Article ${index + 1}`}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-cyan-300">{item.quantity}</td>
-                  <td className="px-4 py-3 text-right text-sm text-cyan-300">
-                    {item.unitPrice.toFixed(2)} GNF
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm font-bold text-cyan-400">
-                    {item.total.toFixed(2)} GNF
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              <div key={index} className="grid grid-cols-12 gap-4 py-4 border-b border-gray-200 text-sm">
+                <div className="col-span-6">
+                  <p className="font-medium text-gray-800 mb-1">{item.description || `Article ${index + 1}`}</p>
+                </div>
+                <div className="col-span-2 text-center">{item.quantity}</div>
+                <div className="col-span-2 text-center">{item.unitPrice.toFixed(2)} GNF</div>
+                <div className="col-span-2 text-right font-medium">{item.total.toFixed(2)} GNF</div>
+              </div>
+            ))}
+          </div>
 
-      {/* Totaux futuristes */}
-      <div className="flex justify-end">
-        <div className="w-80 bg-slate-800 border border-cyan-400 p-6 rounded-xl">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-cyan-300">Sous-total:</span>
-              <span className="font-bold text-white">{invoiceData.subtotal.toFixed(2)} GNF</span>
+          {/* Totals Section */}
+          <div className="px-8 py-6">
+            <div className="flex justify-end">
+              <div className="w-80 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">SOUS-TOTAL :</span>
+                  <span className="font-medium"> {invoiceData.subtotal.toFixed(2)} GNF</span>
+                </div>
+                {invoiceData.includeTax && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Tax VAT 18% :</span>
+                  <span className="font-medium">{invoiceData.tax.toFixed(2)} GNF</span>
+                </div>
+                )}
+                <div className="bg-indigo-600 text-white px-4 py-3 rounded flex justify-between">
+                  <span className="font-bold">TOTAL :</span>
+                  <span className="font-bold text-lg"> {invoiceData.total.toFixed(2)} GNF</span>
+                </div>
+              </div>
             </div>
-            
-            {invoiceData.includeTax && (
-              <div className="flex justify-between text-sm">
-                <span className="text-cyan-300">TVA (20%):</span>
-                <span className="font-bold text-white">{invoiceData.tax.toFixed(2)} GNF</span>
-              </div>
+
+            {/* Note */}
+            {invoiceData.notes && (
+            <div className="mt-8 mb-8">
+              <p className="font-semibold text-gray-800 mb-2">Note:</p>
+              <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+                {invoiceData.notes}
+              </p>
+            </div>
             )}
-            
-            <div className="border-t border-cyan-400 pt-2">
-              <div className="flex justify-between text-xl font-bold text-cyan-400">
-                <span>Total:</span>
-                <span>{invoiceData.total.toFixed(2)} GNF</span>
+            {/* Thank you */}
+            <div className="text-center mb-8">
+              <h3 className="text-xl font-bold text-indigo-600">Merci pour votre confiance</h3>
+              <div className="w-full h-px bg-indigo-300 mt-4"></div>
+            </div>
+
+            {/* Footer Info */}
+            <div className="grid grid-cols-3 gap-8 text-sm">
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Questions?</h4>
+                <div className="text-gray-600 space-y-1">
+                  <p>Email: company@yourbusiness</p>
+                  <p>Contact : +224 00 00 00 00</p>
+                </div>
               </div>
+              {/* <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Payment Info :</h4>
+                <div className="text-gray-600 space-y-1">
+                  <p>Account : 1234 567 890</p>
+                  <p>A/C Name : Robert Sopanin</p>
+                  <p>Bank Detail : Bank Prakash</p>
+                </div>
+              </div> */}
+              {/* <div>
+                <h4 className="font-semibold text-gray-800 mb-2">Terms & Conditions/Note:</h4>
+                <div className="text-gray-600 space-y-1">
+                  <p className="text-xs leading-relaxed">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy nibh euismod tincidunt.
+                  </p>
+                </div>
+              </div> */}
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Notes futuristes */}
-      {invoiceData.notes && (
-        <div className="bg-slate-800 border border-cyan-400 p-6 rounded-xl">
-          <h3 className="text-lg font-bold text-cyan-400 mb-2">// Notes</h3>
-          <p className="text-cyan-300 whitespace-pre-line">{invoiceData.notes}</p>
-        </div>
-      )}
-
-      {/* Pied de page futuriste */}
-      <div className="text-center bg-slate-800 border border-cyan-400 p-4 rounded-xl">
-        <p className="font-bold text-cyan-400 text-lg">Merci pour votre confiance !</p>
-        <p className="text-cyan-300">support@facturly.com</p>
       </div>
     </div>
-  )
+ )
+
 }
 
 // Template Artistique
