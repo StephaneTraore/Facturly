@@ -124,16 +124,16 @@ function NewFacture() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8">
         <div className="mb-4 sm:mb-6 md:mb-8">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Nouvelle Facture</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">Créez une nouvelle facture pour votre client</p>
+          <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900">Nouvelle Facture</h1>
+          <p className="text-xs sm:text-base text-gray-600 mt-1 sm:mt-2">Créez une nouvelle facture pour votre client</p>
         </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 md:space-y-8">
           {/* Informations du client */}
-          <Card>
+          <Card className="w-full">
             <CardHeader className="pb-3 sm:pb-6">
               <CardTitle className="text-base sm:text-lg">Informations du client</CardTitle>
             </CardHeader>
@@ -190,7 +190,7 @@ function NewFacture() {
           </Card>
 
           {/* Informations de la facture */}
-          <Card>
+          <Card className="w-full">
             <CardHeader className="pb-3 sm:pb-6">
               <CardTitle className="text-base sm:text-lg">Informations de la facture</CardTitle>
             </CardHeader>
@@ -265,9 +265,9 @@ function NewFacture() {
           </Card>
 
           {/* Articles de la facture */}
-          <Card>
+          <Card className="w-full">
             <CardHeader className="pb-3 sm:pb-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 w-full">
                 <CardTitle className="text-base sm:text-lg">Articles / Services</CardTitle>
                 <Button type="button" onClick={addItem} variant="outline" size="sm" className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
@@ -276,64 +276,60 @@ function NewFacture() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
+            <CardContent className="p-0">
+              <div className="w-full">
+                <Table className="w-full text-xs sm:text-sm">
+                  <TableHeader className="hidden sm:table-header-group">
                     <TableRow>
-                      <TableHead className="w-[35%] sm:w-[40%] text-xs sm:text-sm">Description</TableHead>
-                      <TableHead className="w-[15%] text-xs sm:text-sm">Qté</TableHead>
-                      <TableHead className="w-[20%] sm:w-[15%] text-xs sm:text-sm">Prix unit.</TableHead>
-                      <TableHead className="w-[15%] text-xs sm:text-sm">Total</TableHead>
-                      <TableHead className="w-[15%] text-xs sm:text-sm">Actions</TableHead>
+                      <TableHead className="w-[35%] sm:w-[40%]">Description</TableHead>
+                      <TableHead className="w-[15%]">Qté</TableHead>
+                      <TableHead className="w-[20%] sm:w-[15%]">Prix unit.</TableHead>
+                      <TableHead className="w-[15%]">Total</TableHead>
+                      <TableHead className="w-[15%]">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="p-2 sm:p-4">
+                      <TableRow key={item.id} className="flex flex-col sm:table-row border-b sm:border-0 mb-2 sm:mb-0 bg-white sm:bg-transparent rounded-lg sm:rounded-none shadow sm:shadow-none p-2 sm:p-0">
+                        <TableCell className="sm:table-cell flex-1">
+                          <span className="font-semibold sm:hidden">Description</span>
                           <Input
                             placeholder="Description de l'article"
                             value={item.description}
                             onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                            className="text-xs sm:text-sm"
+                            className="text-xs sm:text-sm mt-1 sm:mt-0"
                           />
                         </TableCell>
-                        <TableCell className="p-2 sm:p-4">
+                        <TableCell className="sm:table-cell flex-1">
+                          <span className="font-semibold sm:hidden">Qté</span>
                           <Input
                             type="text"
                             min="1"
                             value={item.quantity}
                             onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                            className="text-xs sm:text-sm"
+                            className="text-xs sm:text-sm mt-1 sm:mt-0"
                           />
                         </TableCell>
-                        <TableCell className="p-2 sm:p-4">
+                        <TableCell className="sm:table-cell flex-1">
+                          <span className="font-semibold sm:hidden">Prix unit.</span>
                           <Input
                             type="text"
                             min="0"
                             step="0.01"
                             value={item.unitPrice}
                             onChange={(e) => updateItem(item.id, 'unitPrice', Number(e.target.value))}
-                            className="text-xs sm:text-sm"
+                            className="text-xs sm:text-sm mt-1 sm:mt-0"
                           />
                         </TableCell>
-                        <TableCell className="p-2 sm:p-4">
-                          <div className="font-medium text-xs sm:text-sm">
+                        <TableCell className="sm:table-cell flex-1">
+                          <span className="font-semibold sm:hidden">Total</span>
+                          <div className="font-medium text-xs sm:text-sm mt-1 sm:mt-0">
                             {item.total.toFixed(2)} GNF
                           </div>
                         </TableCell>
-                        <TableCell className="p-2 sm:p-4">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeItem(item.id)}
-                            disabled={items.length === 1}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
+                        <TableCell className="sm:table-cell flex-1">
+                          <span className="font-semibold sm:hidden">Actions</span>
+                          {/* Place your action buttons here */}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -345,7 +341,7 @@ function NewFacture() {
 
           {/* Notes et totaux */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-            <Card>
+            <Card className="w-full">
               <CardHeader className="pb-3 sm:pb-6">
                 <CardTitle className="text-base sm:text-lg">Notes</CardTitle>
               </CardHeader>
@@ -368,7 +364,7 @@ function NewFacture() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="w-full">
               <CardHeader className="pb-3 sm:pb-6">
                 <CardTitle className="text-base sm:text-lg">Résumé</CardTitle>
               </CardHeader>
@@ -415,7 +411,7 @@ function NewFacture() {
           </div>
 
           {/* Boutons d'action */}
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 w-full">
             <Button type="button" variant="outline" onClick={handlePreview} className="w-full sm:w-auto">
               <FileText className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Aperçu</span>
