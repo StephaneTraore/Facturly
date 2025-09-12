@@ -1029,125 +1029,209 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6 bg-gray-900 text-white p-3 sm:p-4 md:p-6">
-      {/* En-tête sombre */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-4 sm:p-6 md:p-8 rounded-lg border border-gray-600">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">FACTURly</h1>
-            <p className="text-gray-300 text-sm sm:text-base md:text-lg">Votre partenaire facturation</p>
-          </div>
-          <div className="text-center sm:text-right">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">FACTURE</h2>
-            <p className="text-gray-300 text-sm sm:text-base">N° {invoiceData.invoiceNumber}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Informations client et facture sombres */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-        <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg border border-gray-600">
-          <h3 className="text-sm sm:text-base md:text-xl font-bold text-blue-400 mb-2 sm:mb-3 md:mb-4">Facturé à</h3>
-          <div className="space-y-1 sm:space-y-2">
-            <p className="text-sm sm:text-base md:text-lg font-semibold text-white">{invoiceData.clientName}</p>
-            <p className="text-gray-300 break-all text-xs sm:text-sm md:text-base">{invoiceData.clientEmail}</p>
-            <p className="text-gray-300 whitespace-pre-line text-xs sm:text-sm md:text-base">{invoiceData.clientAddress}</p>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 p-3 sm:p-4 md:p-6 rounded-lg border border-gray-600">
-          <h3 className="text-sm sm:text-base md:text-xl font-bold text-green-400 mb-2 sm:mb-3 md:mb-4">Détails</h3>
-          <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Émission:</span>
-              <span className="text-white font-medium">{formatDate(invoiceData.issueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Échéance:</span>
-              <span className="text-white font-medium">{formatDate(invoiceData.dueDate)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Paiement:</span>
-              <span className="text-white font-medium">{getPaymentTermsText(invoiceData.paymentTerms)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tableau sombre */}
-      <div className="bg-gray-800 rounded-lg border border-gray-600 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left font-bold text-purple-400">Description</th>
-                <th className="px-4 py-3 text-center font-bold text-purple-400">Qté</th>
-                <th className="px-4 py-3 text-right font-bold text-purple-400">Prix unit.</th>
-                <th className="px-4 py-3 text-right font-bold text-purple-400">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.items.map((item, index) => (
-                <tr key={item.id} className={`${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'} hover:bg-gray-700 border-b border-gray-600`}>
-                  <td className="px-4 py-3">
-                    <div className="break-words text-sm text-white">
-                      {item.description || `Article ${index + 1}`}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-white">{item.quantity}</td>
-                  <td className="px-4 py-3 text-right text-sm text-white">
-                    {item.unitPrice.toFixed(2)} GNF
-                  </td>
-                  <td className="px-4 py-3 text-right text-sm font-bold text-yellow-400">
-                    {item.total.toFixed(2)} GNF
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Totaux sombres */}
-      <div className="flex justify-end">
-        <div className="w-80 bg-gray-800 p-6 rounded-lg border border-gray-600">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Sous-total:</span>
-              <span className="font-bold text-white">{invoiceData.subtotal.toFixed(2)} GNF</span>
-            </div>
-            
-            {invoiceData.includeTax && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">TVA (20%):</span>
-                <span className="font-bold text-white">{invoiceData.tax.toFixed(2)} GNF</span>
-              </div>
-            )}
-            
-            <div className="border-t border-gray-600 pt-2">
-              <div className="flex justify-between text-xl font-bold text-yellow-400">
-                <span>Total:</span>
-                <span>{invoiceData.total.toFixed(2)} GNF</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notes sombres */}
-      {invoiceData.notes && (
-        <div className="bg-gray-800 p-6 rounded-lg border border-gray-600">
-          <h3 className="text-lg font-bold text-blue-400 mb-2">Notes</h3>
-          <p className="text-gray-300 whitespace-pre-line">{invoiceData.notes}</p>
-        </div>
-      )}
-
-      {/* Pied de page sombre */}
-      <div className="text-center bg-gray-800 p-4 rounded-lg border border-gray-600">
-        <p className="font-bold text-white text-lg">Merci pour votre confiance !</p>
-        <p className="text-gray-400">support@facturly.com</p>
+// template sombre
+    // Template 4: Design géométrique rouge
+<div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
+  <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
+    {/* Top Left Geometric Design - Responsive */}
+    <div className="absolute top-0 left-0 w-60 sm:w-80 h-60 sm:h-80">
+      {/* Dark triangle */}
+      <div className="absolute top-0 left-0 w-24 sm:w-40 h-24 sm:h-40 bg-slate-700" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
+      
+      {/* Gray diamond */}
+      <div className="absolute top-4 sm:top-8 left-12 sm:left-20 w-10 sm:w-16 h-10 sm:h-16 bg-gray-400 transform rotate-45"></div>
+      
+      {/* Red diamond with INVOICE text */}
+      <div className="absolute top-8 sm:top-16 left-16 sm:left-32 w-20 sm:w-32 h-20 sm:h-32 bg-red-500 transform rotate-45 flex items-center justify-center">
+        <span className="text-white font-bold text-sm sm:text-lg transform -rotate-45">FACTURE</span>
       </div>
     </div>
+
+    {/* Bottom Right Geometric Elements - Responsive */}
+    <div className="absolute bottom-0 right-0">
+      {/* Red triangle */}
+      <div className="w-12 sm:w-20 h-12 sm:h-20 bg-red-500" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}></div>
+    </div>
+    
+    <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8">
+      {/* Dark triangle */}
+      <div className="w-10 sm:w-16 h-10 sm:h-16 bg-slate-700" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}></div>
+    </div>
+
+    {/* Main Content */}
+    <div className="relative z-10 p-4 sm:p-6 lg:p-8 pt-16 sm:pt-20">
+      {/* Header Info */}
+      <div className="flex flex-col sm:flex-row justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+        <div className="w-full sm:w-1/2">
+          {/* Empty space for geometric design on desktop, content on mobile */}
+          <div className="block sm:hidden">
+            <div className="mb-4">
+              <div className="text-sm font-semibold text-gray-700 mb-1">Facture#</div>
+              <div className="text-sm text-gray-600">N° {invoiceData.invoiceNumber}</div>
+            </div>
+            <div className="mb-4">
+              <div className="text-sm font-semibold text-gray-700 mb-1">Date</div>
+              <div className="text-sm text-gray-600">{formatDate(invoiceData.issueDate)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="w-full sm:w-1/2">
+          <div className="hidden sm:block mb-4">
+            <div className="text-sm font-semibold text-gray-700 mb-1">Facture#</div>
+            <div className="text-sm text-gray-600">N° {invoiceData.invoiceNumber}</div>
+          </div>
+          <div className="hidden sm:block mb-6">
+            <div className="text-sm font-semibold text-gray-700 mb-1">Date</div>
+            <div className="text-sm text-gray-600">{formatDate(invoiceData.issueDate)}</div>
+          </div>
+          
+          <div>
+            <div className="text-sm font-semibold text-gray-700 mb-2">Facturé à:</div>
+            <div className="text-sm text-gray-800 font-medium break-words">{invoiceData.clientName}</div>
+            <div className="text-xs text-gray-600 leading-relaxed space-y-1">
+              <div className="break-words">{invoiceData.clientEmail}</div>
+              <div className="break-words">{invoiceData.clientAddress}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Items Table - Version Desktop et Tablette */}
+      <div className="hidden sm:block mb-6 sm:mb-8">
+        {/* Table Header */}
+        <div className="bg-red-500 text-white">
+          <div className="flex py-3 px-4 text-sm font-medium">
+            <div className="w-12">Nº</div>
+            <div className="flex-1">Description</div>
+            <div className="w-20 text-center">Qté</div>
+            <div className="w-20 text-center">Prix unit.</div>
+            <div className="w-20 text-right">Total</div>
+          </div>
+        </div>
+
+        {/* Table Rows */}
+        <div className="bg-gray-50">
+          {invoiceData.items.map((item, index) => (
+            <div key={item.id} className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} flex py-3 px-4 border-b border-gray-200 text-sm`}>
+              <div className="w-12 text-gray-600">{index + 1}</div>
+              <div className="flex-1 text-gray-800 break-words">{item.description || `Article ${index + 1}`}</div>
+              <div className="w-20 text-center text-gray-800">{item.quantity}</div>
+              <div className="w-20 text-center text-gray-800">{item.unitPrice.toFixed(2)} GNF</div>
+              <div className="w-20 text-right text-gray-800">{item.total.toFixed(2)} GNF</div>
+            </div>
+          ))}
+
+          {/* Empty rows pour maintenir l'espacement */}
+          <div className="flex py-3 px-4 border-b border-gray-200 text-sm">
+            <div className="w-12"></div>
+            <div className="flex-1"></div>
+            <div className="w-20 text-center"></div>
+            <div className="w-20 text-center"></div>
+            <div className="w-20 text-right"></div>
+          </div>
+          <div className="flex py-3 px-4 border-b border-gray-200 text-sm bg-white">
+            <div className="w-12"></div>
+            <div className="flex-1"></div>
+            <div className="w-20 text-center"></div>
+            <div className="w-20 text-center"></div>
+            <div className="w-20 text-right"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Items List - Version Mobile */}
+      <div className="block sm:hidden mb-6 sm:mb-8">
+        <div className="bg-red-500 text-white px-4 py-3">
+          <h3 className="text-sm font-medium">ARTICLES</h3>
+        </div>
+        
+        <div className="divide-y divide-gray-200">
+          {invoiceData.items.map((item, index) => (
+            <div key={item.id} className={`px-4 py-4 text-sm ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+              <div className="flex justify-between items-start mb-2">
+                <div className="font-medium text-gray-800 flex-1 break-words mr-2">
+                  <span className="text-xs text-gray-500 mr-2">#{index + 1}</span>
+                  {item.description || `Article ${index + 1}`}
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 mt-2">
+                <div>
+                  <span className="font-medium">Qté:</span> {item.quantity}
+                </div>
+                <div>
+                  <span className="font-medium">Prix:</span> {item.unitPrice.toFixed(2)} GNF
+                </div>
+                <div className="text-right">
+                  <span className="font-medium">Total:</span> {item.total.toFixed(2)} GNF
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Section - Responsive */}
+      <div className="flex flex-col lg:flex-row lg:justify-between space-y-6 lg:space-y-0">
+        {/* Left Side - Payment Info and Terms */}
+        <div className="w-full lg:w-1/2 lg:pr-8">
+          <div className="mb-4 sm:mb-6">
+            <div className="text-sm font-semibold text-red-500 mb-2">Payment Info:</div>
+            <div className="text-xs text-gray-600 space-y-1">
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <span>Nom</span>
+                <span className="sm:ml-2 break-words">Abcdef</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <span>Nº Compte:</span>
+                <span className="sm:ml-2">123456789</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between">
+                <span>Details de la Banque:</span>
+                <span className="sm:ml-2">Ecobank</span>
+              </div>
+            </div>
+          </div>
+          {invoiceData.notes && (
+            <div>
+              <div className="text-sm font-semibold text-red-500 mb-2">Note</div>
+              <div className="text-xs text-gray-600 leading-relaxed">
+                <p className="break-words">{invoiceData.notes}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side - Totals */}
+        <div className="w-full lg:w-1/2">
+          <div className="bg-gray-50 p-4 rounded-lg lg:bg-transparent lg:p-0">
+            <div className="space-y-2 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-700">Sous-Total:</span>
+                <span className="text-gray-800 font-medium">{invoiceData.subtotal.toFixed(2)} GNF</span>
+              </div>
+              {invoiceData.includeTax && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-700">Tax(18%):</span>
+                  <span className="text-gray-800 font-medium">{invoiceData.tax.toFixed(2)} GNF</span>
+                </div>
+              )}
+              <div className="border-t pt-2">
+                <div className="flex justify-between text-base sm:text-lg font-semibold">
+                  <span className="text-red-500">Total:</span>
+                  <span className="text-red-500">{invoiceData.total.toFixed(2)} GNF</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-left mb-4 sm:mb-8">
+              <div className="text-sm text-gray-600">Signature</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   )
 }
 
@@ -1308,169 +1392,7 @@ const TechTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
 
   return (
 
-    // <div className="min-h-screen bg-gray-400 p-8 flex items-center justify-center">
-    //   <div className="max-w-4xl w-full bg-white shadow-2xl rounded-2xl overflow-hidden relative">
-    //     {/* Decorative Background Shapes */}
-    //     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    //       {/* Top gradient blob */}
-    //       <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 rounded-full opacity-80 blur-sm transform rotate-12"></div>
-    //       <div className="absolute top-10 -left-10 w-64 h-64 bg-gradient-to-br from-orange-400 to-pink-400 rounded-full opacity-60"></div>
-          
-    //       {/* Bottom gradient blobs */}
-    //       <div className="absolute -bottom-32 -left-20 w-80 h-80 bg-gradient-to-tr from-purple-500 via-pink-400 to-orange-400 rounded-full opacity-70"></div>
-    //       <div className="absolute bottom-20 right-32 w-32 h-32 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-60"></div>
-    //       <div className="absolute bottom-40 right-10 w-20 h-20 bg-purple-500 rounded-full opacity-70"></div>
-    //     </div>
-
-    //     {/* Content */}
-    //     <div className="relative z-10">
-    //       {/* Header */}
-    //       <div className="px-8 py-8">
-    //         <div className="flex justify-between items-start mb-8">
-    //           <div>
-    //             <div className="flex items-center mb-4">
-    //               <div className="grid grid-cols-3 gap-1 mr-3">
-    //                 <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-    //                 <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-    //               </div>
-    //               <div>
-    //                 <h1 className="text-2xl font-bold text-white">LOGO</h1>
-    //                 <p className="text-sm text-white opacity-80">ENTREPRISE</p>
-    //               </div>
-    //             </div>
-    //             <div className="text-white text-sm space-y-1 opacity-90">
-    //               <p className='text-lg sm:text-xl md:text-2xl font-bold'>FACTURE</p>
-    //               <h3 className='text-xs sm:text-sm md:text-base'>N° {invoiceData.invoiceNumber}</h3>
-                  
-    //             </div>
-    //           </div>
-    //         </div>
-
-    //         {/* Invoice Details */}
-    //         <div className="bg-white bg-opacity-90 rounded-xl p-6 mb-6">
-    //           <div className="grid grid-cols-4 gap-8 mb-6">
-    //             <div>
-    //               <h3 className="text-sm font-semibold text-gray-800 mb-2">Facturé à</h3>
-    //               <div className="text-sm text-gray-700">
-    //                 <p className="font-medium">{invoiceData.clientName}</p>
-    //                 <p>{invoiceData.clientEmail}</p>
-    //                 <p>{invoiceData.clientAddress}</p>
-    //               </div>
-    //             </div>
-    //             <div>
-    //               <h3 className="text-sm font-semibold text-gray-800 mb-2">Émission:</h3>
-    //               <div className="text-sm text-gray-700">
-    //                 <p>{formatDate(invoiceData.issueDate)}</p>
-                    
-    //               </div>
-    //             </div>
-    //             <div>
-    //               <h3 className="text-sm font-semibold text-gray-800 mb-2">Écheance:</h3>
-    //               <div className="text-sm text-gray-700">
-    //                 <p>{formatDate(invoiceData.dueDate)}</p>
-    //               </div>
-    //             </div>
-    //             <div>
-    //               <h3 className="text-sm font-semibold text-gray-800 mb-2">Paiement:</h3>
-    //               <div className="text-sm text-gray-700">
-    //                 <p>{getPaymentTermsText(invoiceData.paymentTerms)}</p>
-    //               </div>
-    //             </div>
-    //           </div>
-    //         </div>
-
-    //         {/* Items Table */}
-    //         <div className="bg-white bg-opacity-90 rounded-xl overflow-hidden mb-6">
-    //           {/* Table Header */}
-    //           <div className="bg-gradient-to-r from-orange-400 via-pink-400 to-purple-500 text-white px-6 py-4">
-    //             <div className="grid grid-cols-12 gap-4 text-sm font-medium">
-                  
-    //               <div className="col-span-5"> DESCRIPTION</div>
-    //               <div className="col-span-2 text-center">Qté</div>
-    //               <div className="col-span-2 text-center">Prix unit.</div>
-    //               <div className="col-span-2 text-right">TOTAL</div>
-    //             </div>
-    //           </div>
-
-    //           {/* Table Rows */}
-    //           <div className="divide-y divide-gray-200">
-    //            {invoiceData.items.map((item, index) => (
-    //               <div key={item.id} className="grid grid-cols-12 gap-4 px-6 py-3 text-sm">
-                    
-    //                 <div className="col-span-5 text-gray-800">{item.description || `Article ${index + 1}`}</div>
-    //                 <div className="col-span-2 text-center text-gray-700">{item.quantity}</div>
-    //                 <div className="col-span-2 text-center text-gray-700">{item.unitPrice.toFixed(2)} GNF</div>
-    //                 <div className="col-span-2 text-right font-medium text-gray-800"> {item.total.toFixed(2)} GNF</div>
-    //               </div>
-    //            ))}
-    //           </div>
-
-    //           {/* Totals */}
-    //           <div className="px-6 py-4 bg-gray-50">
-    //             <div className="flex justify-end">
-    //               <div className="w-80 space-y-3">
-    //                 <div className="flex justify-between text-sm">
-    //                   <span className="text-gray-600">Sous-total</span>
-    //                   <span className="font-medium">{invoiceData.subtotal.toFixed(2)} GNF</span>
-    //                 </div>
-
-    //                 {invoiceData.tax && (
-    //                 <div className="flex justify-between text-sm">
-    //                   <span className="text-gray-600">Tax (18%)</span>
-    //                   <span className="font-medium">{invoiceData.tax.toFixed(2)} GNF</span>
-    //                 </div>
-    //                 )}
-    //                 <div className="bg-gradient-to-r from-orange-400 to-pink-400 text-white px-4 py-3 rounded-full flex justify-between font-bold">
-    //                   <span>Total</span>
-    //                   <span>{invoiceData.total.toFixed(2)} GNF</span>
-    //                 </div>
-    //               </div>
-    //             </div>
-    //           </div>
-    //         </div>
-
-    //         {/* Footer */}
-    //         <div className="grid grid-cols-2 gap-8">
-    //           {/* Payment Method */}
-    //           <div className="bg-gradient-to-br from-purple-500 to-pink-400 text-white p-6 rounded-xl relative overflow-hidden">
-    //             <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-80"></div>
-    //             {invoiceData.notes && (
-    //              <div className="mb-4">
-    //               <h4 className="text-sm font-bold mb-2">Note:</h4>
-    //               <p className="text-xs opacity-90 leading-relaxed">
-    //                 {invoiceData.notes}
-    //               </p>
-    //             </div>
-    //             )}
-    //             <h3 className="text-lg font-bold mb-4">Methode Paiement</h3>
-    //             <div className="text-sm space-y-2 opacity-90">
-    //               <div><span className="font-medium">Nº Compte</span> : 0000 0000 0000 0000</div>
-    //               <div><span className="font-medium">Nom</span> : abcdefghijklmn</div>
-    //               <div><span className="font-medium">Banque</span> : XYZ Banque</div>
-    //             </div>
-
-               
-    //           </div>
-
-    //           {/* Authorized Sign */}
-    //           <div className="bg-white bg-opacity-60 p-6 rounded-xl flex items-end justify-end">
-    //             <div className="text-right">
-    //               <div className="text-sm text-gray-600 mb-16">Authorised Sign</div>
-    //               <div className="w-32 h-px bg-gray-400"></div>
-    //             </div>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
+    
     <div className="min-h-screen bg-gray-400 p-2 sm:p-4 lg:p-8 flex items-center justify-center">
   <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden relative mx-2 sm:mx-0">
     {/* Decorative Background Shapes - Réduits sur mobile */}
