@@ -1029,10 +1029,8 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-// template sombre
-    // Template 4: Design géométrique rouge
-<div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
-  <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
+    <div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
     {/* Top Left Geometric Design - Responsive */}
     <div className="absolute top-0 left-0 w-60 sm:w-80 h-60 sm:h-80 ">
       {/* Dark triangle */}
@@ -1391,8 +1389,6 @@ const TechTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-
-    //tech
     <div className="min-h-screen bg-gray-400 p-2 sm:p-4 lg:p-8 flex items-center justify-center">
   <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden relative mx-2 sm:mx-0">
     {/* Decorative Background Shapes - Réduits sur mobile */}
@@ -2242,8 +2238,7 @@ const ArtisticTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    // Template 3: Design géométrique
-<div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
+    <div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
   <div className="bg-white w-full max-w-4xl shadow-xl mx-2 sm:mx-0" style={{ minHeight: '800px' }}>
     {/* Header with geometric design */}
     <div className="relative h-24 sm:h-32 overflow-hidden">
@@ -2825,109 +2820,120 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[98vw] sm:w-[95vw] max-w-6xl h-[98vh] sm:h-[95vh] max-h-[98vh] sm:max-h-[95vh] overflow-y-auto p-1 sm:p-2 md:p-4 lg:p-6">
-        <DialogHeader className="pb-1 sm:pb-2">
-          <DialogTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-            <span className="text-base sm:text-lg md:text-xl">Aperçu de la Facture</span>
-            <div className="flex gap-1 sm:gap-2 flex-wrap w-full sm:w-auto">
-              <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="text-xs sm:text-sm px-2 sm:px-3 flex-1 sm:flex-none">
-                <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">PDF</span>
+      <DialogContent className="w-[100vw] h-[100vh] max-w-none max-h-none m-0 p-0 rounded-none overflow-hidden">
+        {/* Header fixe */}
+        <div className="sticky top-0 z-50 bg-white border-b p-3 sm:p-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h2 className="text-lg sm:text-xl font-semibold">Aperçu de la Facture</h2>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDownloadPDF} 
+                className="flex-1 sm:flex-none text-xs sm:text-sm"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Télécharger PDF</span>
                 <span className="sm:hidden">PDF</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={handlePrint} className="text-xs sm:text-sm px-2 sm:px-3 flex-1 sm:flex-none">
-                <Printer className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrint} 
+                className="flex-1 sm:flex-none text-xs sm:text-sm"
+              >
+                <Printer className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Imprimer</span>
                 <span className="sm:hidden">Print</span>
               </Button>
             </div>
-          </DialogTitle>
-        </DialogHeader>
+          </div>
+        </div>
 
-        {/* Sélecteur de template avec aperçu */}
-        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-          <CardHeader className="pb-1 sm:pb-2">
-            <CardTitle className="text-sm sm:text-base md:text-lg flex items-center gap-1 sm:gap-2">
-              <Palette className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-purple-600" />
-              <span className="hidden sm:inline">Choisir un template</span>
-              <span className="sm:hidden">Template</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex flex-wrap justify-center gap-1 sm:gap-2">
-              {templates.map((template) => (
-                <div
-                  key={template.id}
-                  className={`relative cursor-pointer rounded-lg border-2 transition-all duration-200 hover:shadow-md flex-1 min-w-[100px] max-w-[120px] sm:min-w-[140px] sm:max-w-[160px] ${
-                    selectedTemplate === template.id
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-gray-200 bg-white hover:border-purple-300'
-                  }`}
-                  onClick={() => setSelectedTemplate(template.id)}
-                >
-                  <div className="p-1.5 sm:p-2">
-                    <div className="text-center mb-1">
-                      <span className="text-lg sm:text-xl">{template.preview}</span>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-[10px] sm:text-xs text-gray-900">{template.name}</div>
-                      <div className="text-[8px] sm:text-[10px] text-gray-500 mt-1 leading-tight hidden sm:block">{template.description}</div>
-                    </div>
-                  </div>
-                  {selectedTemplate === template.id && (
-                    <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1">
-                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full flex items-center justify-center">
-                        <svg className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
+        {/* Contenu scrollable */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+
+          {/* Sélecteur de template avec aperçu */}
+          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                <Palette className="h-4 w-4 text-purple-600" />
+                <span>Choisir un template</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                {templates.map((template) => (
+                  <div
+                    key={template.id}
+                    className={`relative cursor-pointer rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
+                      selectedTemplate === template.id
+                        ? 'border-purple-500 bg-purple-50 shadow-md'
+                        : 'border-gray-200 bg-white hover:border-purple-300'
+                    }`}
+                    onClick={() => setSelectedTemplate(template.id)}
+                  >
+                    <div className="p-2 sm:p-3">
+                      <div className="text-center mb-2">
+                        <span className="text-lg sm:text-xl">{template.preview}</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-medium text-xs text-gray-900">{template.name}</div>
+                        <div className="text-[10px] text-gray-500 mt-1 leading-tight hidden sm:block">{template.description}</div>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                    {selectedTemplate === template.id && (
+                      <div className="absolute top-1 right-1">
+                        <div className="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Section de partage */}
-        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-          <CardHeader className="pb-1 sm:pb-2">
-            <CardTitle className="text-sm sm:text-base md:text-lg flex items-center gap-1 sm:gap-2">
-              <Share2 className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />
-              <span className="hidden sm:inline">Partager la facture</span>
-              <span className="sm:hidden">Partager</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 md:gap-3">
-              <Button 
-                onClick={handleShareWhatsApp}
-                className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4"
-                size="sm"
-              >
-                <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">WhatsApp</span>
-                <span className="sm:hidden">WhatsApp</span>
-              </Button>
-              <Button 
-                onClick={handleShareEmail}
-                className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4"
-                size="sm"
-              >
-                <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Email</span>
-                <span className="sm:hidden">Email</span>
-              </Button>
-            </div>
-            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-1.5 sm:mt-2 hidden sm:block">
-              Envoyez directement la facture à votre client via WhatsApp ou Email
-            </p>
-          </CardContent>
-        </Card>
+          {/* Section de partage */}
+          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                <Share2 className="h-4 w-4 text-primary" />
+                <span>Partager la facture</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button 
+                  onClick={handleShareWhatsApp}
+                  className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
+                  size="sm"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <span>WhatsApp</span>
+                </Button>
+                <Button 
+                  onClick={handleShareEmail}
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none"
+                  size="sm"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  <span>Email</span>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
+                Envoyez directement la facture à votre client via WhatsApp ou Email
+              </p>
+            </CardContent>
+          </Card>
 
-        {/* Rendu du template sélectionné */}
-        <div data-invoice-content className="invoice-template a4-format">
-          {renderTemplate(selectedTemplate, invoiceData)}
+          {/* Rendu du template sélectionné */}
+          <div data-invoice-content className="invoice-template">
+            {renderTemplate(selectedTemplate, invoiceData)}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

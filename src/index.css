@@ -125,6 +125,10 @@ All colors MUST be HSL.
     /* Optimisation pour l'affichage sur tous les appareils */
     max-width: 100%;
     width: 100%;
+    overflow-x: auto;
+    /* Améliorer la lisibilité sur mobile */
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   /* Styles pour l'impression et PDF */
@@ -165,21 +169,45 @@ All colors MUST be HSL.
   /* Styles pour les appareils mobiles */
   @media (max-width: 768px) {
     [data-invoice-content] {
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 0.5rem;
     }
 
     /* Ajuster les espacements pour mobile */
     [data-invoice-content] .space-y-3 > * + * {
-      margin-top: 0.75rem;
+      margin-top: 0.5rem;
     }
 
     [data-invoice-content] .space-y-4 > * + * {
-      margin-top: 1rem;
+      margin-top: 0.75rem;
     }
 
     [data-invoice-content] .space-y-6 > * + * {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    /* Améliorer les tableaux sur mobile */
+    [data-invoice-content] table {
+      font-size: 11px;
+    }
+
+    [data-invoice-content] th,
+    [data-invoice-content] td {
+      padding: 0.25rem;
+    }
+
+    /* Réduire les tailles de police sur mobile */
+    [data-invoice-content] h1 {
+      font-size: 1.25rem;
+    }
+
+    [data-invoice-content] h2 {
+      font-size: 1.125rem;
+    }
+
+    [data-invoice-content] h3 {
+      font-size: 1rem;
     }
   }
 
@@ -263,6 +291,86 @@ All colors MUST be HSL.
   @media (min-width: 641px) {
     .invoice-template .grid-cols-2 {
       grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Styles spécifiques pour le modal */
+  .invoice-template {
+    /* Assurer que le contenu s'adapte au modal */
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Améliorer la responsivité des templates dans le modal */
+  @media (max-width: 768px) {
+    .invoice-template {
+      /* Réduire les espacements sur mobile */
+      padding: 0.5rem;
+    }
+
+    .invoice-template .space-y-8 {
+      gap: 1rem;
+    }
+
+    .invoice-template .space-y-6 {
+      gap: 0.75rem;
+    }
+
+    .invoice-template .space-y-4 {
+      gap: 0.5rem;
+    }
+
+    /* Améliorer les grilles sur mobile */
+    .invoice-template .grid-cols-1.lg\\:grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .invoice-template .grid-cols-1.sm\\:grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+
+    /* Réduire les tailles des éléments décoratifs */
+    .invoice-template .w-60,
+    .invoice-template .w-80 {
+      width: 8rem;
+    }
+
+    .invoice-template .h-60,
+    .invoice-template .h-80 {
+      height: 8rem;
+    }
+
+    /* Améliorer les tableaux sur mobile */
+    .invoice-template .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Réduire les paddings sur mobile */
+    .invoice-template .p-8 {
+      padding: 1rem;
+    }
+
+    .invoice-template .p-6 {
+      padding: 0.75rem;
+    }
+
+    .invoice-template .p-4 {
+      padding: 0.5rem;
+    }
+  }
+
+  /* Styles pour les tablettes */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .invoice-template {
+      padding: 1rem;
+    }
+
+    .invoice-template .p-8 {
+      padding: 1.5rem;
+    }
+
+    .invoice-template .p-6 {
+      padding: 1rem;
     }
   }
 }
