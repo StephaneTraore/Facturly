@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Link } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
 const Hero = () => {
+    const navigate = useNavigate();
+
+    const handleGetStarted = () => {
+        navigate('/dashboard');
+    };
+
     return (
         <section className="pt-24 pb-12 sm:px-6 lg:px-8">
             <div className="container mx-auto">
@@ -40,15 +47,17 @@ const Hero = () => {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4">
-                                 <Link to="/dashboard">
-                            <Button variant="hero" size="lg" className="group">
+                                 
+                            <Button variant="hero" size="lg" className="group" onClick={handleGetStarted}>
                                 Commencer gratuitement
                                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
-                            </Link>
+                            
+                            
                             <Button variant="outline" size="lg">
                                 Voir la démo
                             </Button>
+                            
                         </div>
 
                         {/* Social proof */}
