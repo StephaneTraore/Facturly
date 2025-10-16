@@ -1034,7 +1034,7 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
 <div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
   <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
     {/* Top Left Geometric Design - Responsive */}
-    <div className="absolute top-0 left-0 w-60 sm:w-80 h-60 sm:h-80">
+    <div className="absolute top-0 left-0 w-60 sm:w-80 h-60 sm:h-80 ">
       {/* Dark triangle */}
       <div className="absolute top-0 left-0 w-24 sm:w-40 h-24 sm:h-40 bg-slate-700" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}></div>
       
@@ -1042,7 +1042,7 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
       <div className="absolute top-4 sm:top-8 left-12 sm:left-20 w-10 sm:w-16 h-10 sm:h-16 bg-gray-400 transform rotate-45"></div>
       
       {/* Red diamond with INVOICE text */}
-      <div className="absolute top-8 sm:top-16 left-16 sm:left-32 w-20 sm:w-32 h-20 sm:h-32 bg-red-500 transform rotate-45 flex items-center justify-center">
+      <div className="absolute top-8 sm:top-16 left-16 sm:left-32 w-20 sm:w-32 h-20 sm:h-32 bg-red-500 transform rotate-45 flex items-center justify-center sm:flex ">
         <span className="text-white font-bold text-sm sm:text-lg transform -rotate-45">FACTURE</span>
       </div>
     </div>
@@ -1059,14 +1059,14 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
     </div>
 
     {/* Main Content */}
-    <div className="relative z-10 p-4 sm:p-6 lg:p-8 pt-16 sm:pt-20">
+    <div className="relative z-10 p-4 sm:p-6 lg:p-8 pt-16 sm:pt-20 border">
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
         <div className="w-full sm:w-1/2">
           {/* Empty space for geometric design on desktop, content on mobile */}
-          <div className="block sm:hidden">
-            <div className="mb-4">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Facture#</div>
+          <div className="block sm:hidden mt-8">
+            <div className="mb-4  ">
+              <div className="text-sm font-semibold text-gray-700  "></div>
               <div className="text-sm text-gray-600">N° {invoiceData.invoiceNumber}</div>
             </div>
             <div className="mb-4">
@@ -1077,7 +1077,7 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
         </div>
         <div className="w-full sm:w-1/2">
           <div className="hidden sm:block mb-4">
-            <div className="text-sm font-semibold text-gray-700 mb-1">Facture#</div>
+            <div className="text-sm font-semibold text-gray-700 mb-1">Nº Facture</div>
             <div className="text-sm text-gray-600">N° {invoiceData.invoiceNumber}</div>
           </div>
           <div className="hidden sm:block mb-6">
@@ -1392,7 +1392,7 @@ const TechTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
 
   return (
 
-    
+    //tech
     <div className="min-h-screen bg-gray-400 p-2 sm:p-4 lg:p-8 flex items-center justify-center">
   <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden relative mx-2 sm:mx-0">
     {/* Decorative Background Shapes - Réduits sur mobile */}
@@ -2606,12 +2606,221 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
   }
 
   const handlePrint = () => {
-    window.print()
+    // Créer une nouvelle fenêtre pour l'impression avec les styles A4
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      alert('Veuillez autoriser les pop-ups pour l\'impression')
+      return
+    }
+
+    const invoiceElement = document.querySelector('[data-invoice-content]') as HTMLElement
+    if (!invoiceElement) {
+      alert('Élément de facture non trouvé')
+      return
+    }
+
+    // Styles CSS pour l'impression A4
+    const printStyles = `
+      <style>
+        @page {
+          size: A4;
+          margin: 20mm;
+        }
+        
+        * {
+          box-sizing: border-box;
+        }
+        
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 12px;
+          line-height: 1.4;
+          color: #000;
+          background: #fff;
+        }
+        
+        .print-container {
+          width: 100%;
+          max-width: 170mm; /* A4 moins les marges */
+          margin: 0 auto;
+          padding: 0;
+        }
+        
+        /* Ajuster les tailles pour l'impression */
+        .print-container h1, .print-container h2, .print-container h3 {
+          page-break-after: avoid;
+        }
+        
+        .print-container .grid {
+          display: grid;
+        }
+        
+        .print-container .space-y-3 > * + * {
+          margin-top: 0.75rem;
+        }
+        
+        .print-container .space-y-4 > * + * {
+          margin-top: 1rem;
+        }
+        
+        .print-container .space-y-6 > * + * {
+          margin-top: 1.5rem;
+        }
+        
+        /* Éviter les coupures de page dans les sections importantes */
+        .print-container .border, .print-container .card {
+          page-break-inside: avoid;
+        }
+        
+        /* Masquer les éléments non nécessaires à l'impression */
+        .no-print {
+          display: none !important;
+        }
+        
+        @media print {
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+      </style>
+    `
+
+    // Contenu HTML pour l'impression
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Facture ${invoiceData.invoiceNumber}</title>
+          ${printStyles}
+        </head>
+        <body>
+          <div class="print-container">
+            ${invoiceElement.outerHTML}
+          </div>
+        </body>
+      </html>
+    `
+
+    printWindow.document.write(printContent)
+    printWindow.document.close()
+    
+    // Attendre que le contenu soit chargé puis imprimer
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print()
+        printWindow.close()
+      }, 500)
+    }
   }
 
-  const handleDownloadPDF = () => {
-    console.log('Téléchargement PDF en cours...')
-    alert('Fonctionnalité de téléchargement PDF en cours de développement')
+  const handleDownloadPDF = async () => {
+    try {
+      console.log('Téléchargement PDF en cours...')
+      
+      // Importer jsPDF et html2canvas dynamiquement
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas')
+      ])
+
+      // Sélectionner l'élément de la facture
+      const invoiceElement = document.querySelector('[data-invoice-content]') as HTMLElement
+      if (!invoiceElement) {
+        throw new Error('Élément de facture non trouvé')
+      }
+
+      // Créer un clone de l'élément pour le formatage A4
+      const clonedElement = invoiceElement.cloneNode(true) as HTMLElement
+      
+      // Appliquer des styles spécifiques pour le PDF A4
+      clonedElement.style.width = '210mm' // Largeur A4
+      clonedElement.style.minHeight = '297mm' // Hauteur A4
+      clonedElement.style.maxWidth = '210mm'
+      clonedElement.style.padding = '20mm'
+      clonedElement.style.margin = '0'
+      clonedElement.style.backgroundColor = '#ffffff'
+      clonedElement.style.fontSize = '12px'
+      clonedElement.style.lineHeight = '1.4'
+      clonedElement.style.color = '#000000'
+      clonedElement.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      clonedElement.style.boxSizing = 'border-box'
+      clonedElement.style.position = 'relative'
+      clonedElement.style.overflow = 'visible'
+      
+      // Optimiser les styles des éléments enfants pour le PDF
+      const allElements = clonedElement.querySelectorAll('*')
+      allElements.forEach((element: HTMLElement) => {
+        element.style.boxSizing = 'border-box'
+        element.style.wordWrap = 'break-word'
+        element.style.hyphens = 'auto'
+        
+        // Ajuster les tailles de police pour le PDF
+        const computedStyle = window.getComputedStyle(element)
+        const fontSize = parseFloat(computedStyle.fontSize)
+        if (fontSize > 16) {
+          element.style.fontSize = '14px'
+        } else if (fontSize < 10) {
+          element.style.fontSize = '10px'
+        }
+      })
+      
+      // Masquer temporairement l'élément original et afficher le clone
+      invoiceElement.style.display = 'none'
+      document.body.appendChild(clonedElement)
+
+      // Capturer l'élément avec html2canvas
+      const canvas = await html2canvas(clonedElement, {
+        useCORS: true,
+        allowTaint: true,
+        background: '#ffffff',
+        width: 794, // 210mm en pixels (210 * 3.78)
+        height: 1123 // 297mm en pixels (297 * 3.78)
+      })
+
+      // Nettoyer le clone
+      document.body.removeChild(clonedElement)
+      invoiceElement.style.display = 'block'
+
+      // Créer le PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      // Calculer les dimensions pour A4
+      const imgWidth = 210 // Largeur A4 en mm
+      const pageHeight = 297 // Hauteur A4 en mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+
+      let position = 0
+
+      // Ajouter l'image au PDF
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      // Ajouter des pages supplémentaires si nécessaire
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      // Télécharger le PDF
+      const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
+      pdf.save(fileName)
+
+      console.log('PDF téléchargé avec succès')
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error)
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.')
+    }
   }
 
   return (
@@ -2717,7 +2926,7 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         </Card>
 
         {/* Rendu du template sélectionné */}
-        <div data-invoice-content>
+        <div data-invoice-content className="invoice-template a4-format">
           {renderTemplate(selectedTemplate, invoiceData)}
         </div>
       </DialogContent>

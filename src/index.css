@@ -116,3 +116,153 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Styles spécifiques pour les factures et devis */
+@layer components {
+  /* Conteneur principal pour les factures */
+  [data-invoice-content] {
+    @apply bg-white;
+    /* Optimisation pour l'affichage sur tous les appareils */
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Styles pour l'impression et PDF */
+  @media print {
+    [data-invoice-content] {
+      width: 210mm !important;
+      min-height: 297mm !important;
+      max-width: 210mm !important;
+      margin: 0 !important;
+      padding: 20mm !important;
+      background: white !important;
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      color: black !important;
+      box-shadow: none !important;
+    }
+
+    /* Masquer les éléments non nécessaires à l'impression */
+    .no-print,
+    button,
+    .dialog,
+    .modal {
+      display: none !important;
+    }
+
+    /* Éviter les coupures de page dans les sections importantes */
+    .page-break-avoid {
+      page-break-inside: avoid;
+    }
+
+    /* Forcer les couleurs pour l'impression */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+
+  /* Styles pour les appareils mobiles */
+  @media (max-width: 768px) {
+    [data-invoice-content] {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Ajuster les espacements pour mobile */
+    [data-invoice-content] .space-y-3 > * + * {
+      margin-top: 0.75rem;
+    }
+
+    [data-invoice-content] .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+
+    [data-invoice-content] .space-y-6 > * + * {
+      margin-top: 1.5rem;
+    }
+  }
+
+  /* Styles pour les tablettes */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    [data-invoice-content] {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+  }
+
+  /* Styles pour les écrans desktop */
+  @media (min-width: 1025px) {
+    [data-invoice-content] {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+
+  /* Optimisation pour le format A4 */
+  .a4-format {
+    width: 210mm;
+    min-height: 297mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 20mm;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Styles pour les templates de factures */
+  .invoice-template {
+    @apply bg-white;
+    /* Assurer une largeur maximale cohérente */
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Amélioration de la lisibilité sur tous les appareils */
+  .invoice-template h1,
+  .invoice-template h2,
+  .invoice-template h3 {
+    @apply font-semibold;
+    word-break: break-word;
+  }
+
+  .invoice-template p,
+  .invoice-template span,
+  .invoice-template div {
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* Styles pour les tableaux dans les factures */
+  .invoice-template table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .invoice-template th,
+  .invoice-template td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    word-wrap: break-word;
+  }
+
+  /* Responsive pour les grilles */
+  .invoice-template .grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .invoice-template .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .invoice-template .grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
