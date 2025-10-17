@@ -1029,8 +1029,8 @@ const DarkTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
+<div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
+  <div className="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
     {/* Top Left Geometric Design - Responsive */}
     <div className="absolute top-0 left-0 w-60 sm:w-80 h-60 sm:h-80 ">
       {/* Dark triangle */}
@@ -2238,7 +2238,7 @@ const ArtisticTemplate = ({ invoiceData }: { invoiceData: InvoiceData }) => {
   }
 
   return (
-    <div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
+<div className="bg-gray-200 min-h-screen flex items-center justify-center p-2 sm:p-4">
   <div className="bg-white w-full max-w-4xl shadow-xl mx-2 sm:mx-0" style={{ minHeight: '800px' }}>
     {/* Header with geometric design */}
     <div className="relative h-24 sm:h-32 overflow-hidden">
@@ -2555,6 +2555,11 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
     try {
       console.log('Génération du PDF pour WhatsApp...')
       
+      // Demander la permission pour les notifications si pas déjà accordée
+      if ('Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission()
+      }
+      
       // Importer jsPDF et html2canvas dynamiquement
       const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
         import('jspdf'),
@@ -2612,7 +2617,7 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         allowTaint: true,
         background: '#ffffff',
         width: 794, // 210mm en pixels (210 * 3.78)
-        height: 1123 // 297mm en pixels (297 * 3.78)
+        height: Math.min(clonedElement.scrollHeight, 1123) // Limiter à la hauteur A4 ou au contenu réel
       })
 
       // Nettoyer le clone
@@ -2630,61 +2635,226 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
       const imgWidth = 210 // Largeur A4 en mm
       const pageHeight = 297 // Hauteur A4 en mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
+      
+      // Si le contenu tient sur une page, l'afficher directement
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight)
+      } else {
+        // Si le contenu dépasse une page, le diviser
+        let heightLeft = imgHeight
+        let position = 0
 
-      let position = 0
-
-      // Ajouter l'image au PDF
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // Ajouter des pages supplémentaires si nécessaire
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
+        // Ajouter l'image au PDF
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
         heightLeft -= pageHeight
+
+        // Ajouter des pages supplémentaires seulement si nécessaire
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
       // Générer le PDF en blob
       const pdfBlob = pdf.output('blob')
       const pdfUrl = URL.createObjectURL(pdfBlob)
       
-      // Créer un message pour WhatsApp
-      const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
+      // Créer un message pour WhatsApp avec instructions
+      const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\n📎 Le PDF de la facture a été téléchargé automatiquement sur votre appareil.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
-      // Détecter si c'est un appareil mobile
+      // Détecter si c'est un appareil mobile avec une meilleure détection
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      const isAndroid = /Android/.test(navigator.userAgent)
       
-      if (isMobile) {
-        // Sur mobile, essayer d'ouvrir l'app WhatsApp directement
-        const phoneNumber = '' // Vous pouvez ajouter un numéro par défaut si nécessaire
-        const whatsappUrl = phoneNumber 
-          ? `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
-          : `whatsapp://send?text=${encodeURIComponent(message)}`
-        
-        // Essayer d'ouvrir l'app WhatsApp
-        window.location.href = whatsappUrl
-        
-        // Fallback après un délai si l'app ne s'ouvre pas
-        setTimeout(() => {
+      // Fonction pour essayer d'ouvrir WhatsApp avec fallback
+      const openWhatsApp = () => {
+        if (isMobile && (isIOS || isAndroid)) {
+          // Sur mobile iOS/Android, essayer d'ouvrir l'app WhatsApp
+          const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`
+          
+          // Méthode plus robuste pour détecter si WhatsApp est installé
+          const iframe = document.createElement('iframe')
+          iframe.style.display = 'none'
+          iframe.src = whatsappUrl
+          document.body.appendChild(iframe)
+          
+          // Timer pour détecter si l'app s'est ouverte
+          let appOpened = false
+          const timer = setTimeout(() => {
+            if (!appOpened) {
+              // Si l'app ne s'est pas ouverte, utiliser WhatsApp Web
+              document.body.removeChild(iframe)
+              const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+              window.open(webWhatsappUrl, '_blank')
+            }
+          }, 1000)
+          
+          // Écouter les événements de focus pour détecter si l'app s'est ouverte
+          const handleFocus = () => {
+            appOpened = true
+            clearTimeout(timer)
+            document.body.removeChild(iframe)
+            window.removeEventListener('focus', handleFocus)
+          }
+          
+          window.addEventListener('focus', handleFocus)
+          
+          // Nettoyer après 3 secondes maximum
+          setTimeout(() => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe)
+            }
+            window.removeEventListener('focus', handleFocus)
+            clearTimeout(timer)
+          }, 3000)
+          
+        } else {
+          // Sur desktop ou autres appareils, utiliser WhatsApp Web directement
           const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
           window.open(webWhatsappUrl, '_blank')
-        }, 2000)
-      } else {
-        // Sur desktop, ouvrir WhatsApp Web
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-        window.open(whatsappUrl, '_blank')
+        }
       }
       
-      // Télécharger le PDF automatiquement
+      // Ouvrir WhatsApp
+      openWhatsApp()
+      
+      // Télécharger le PDF automatiquement avec gestion mobile
       const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
-      const link = document.createElement('a')
-      link.download = fileName
-      link.href = pdfUrl
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      
+      // Détecter si c'est un appareil mobile
+      const isMobileDownload = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobileDownload) {
+        // Sur mobile, ouvrir le PDF dans un nouvel onglet pour permettre le téléchargement
+        const newWindow = window.open('', '_blank')
+        if (newWindow) {
+          newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>${fileName}</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body {
+                    margin: 0;
+                    padding: 20px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    background: #f5f5f5;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                  }
+                  .container {
+                    background: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                    max-width: 400px;
+                    width: 100%;
+                  }
+                  .icon {
+                    font-size: 48px;
+                    margin-bottom: 20px;
+                  }
+                  h1 {
+                    color: #333;
+                    margin-bottom: 15px;
+                    font-size: 24px;
+                  }
+                  p {
+                    color: #666;
+                    margin-bottom: 20px;
+                    line-height: 1.5;
+                  }
+                  .download-btn {
+                    background: #25D366;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-decoration: none;
+                    display: inline-block;
+                    margin: 10px;
+                    transition: background 0.3s;
+                  }
+                  .download-btn:hover {
+                    background: #128C7E;
+                  }
+                  .back-btn {
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    text-decoration: none;
+                    display: inline-block;
+                    margin: 10px;
+                  }
+                  .back-btn:hover {
+                    background: #5a6268;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="icon">📄</div>
+                  <h1>Facture Prête</h1>
+                  <p>Votre facture <strong>${invoiceData.invoiceNumber}</strong> est prête à être téléchargée.</p>
+                  <p>Cliquez sur le bouton ci-dessous pour télécharger le PDF :</p>
+                  <a href="${pdfUrl}" download="${fileName}" class="download-btn">
+                    📥 Télécharger PDF
+                  </a>
+                  <br>
+                  <button onclick="window.close()" class="back-btn">
+                    ← Retour
+                  </button>
+                </div>
+                <script>
+                  // Auto-téléchargement après 2 secondes
+                  setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = '${pdfUrl}';
+                    link.download = '${fileName}';
+                    link.click();
+                  }, 2000);
+                </script>
+              </body>
+            </html>
+          `)
+          newWindow.document.close()
+        }
+      } else {
+        // Sur desktop, téléchargement direct
+        const link = document.createElement('a')
+        link.download = fileName
+        link.href = pdfUrl
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+      
+      // Afficher une notification à l'utilisateur
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Facture téléchargée', {
+          body: `Le PDF de la facture ${invoiceData.invoiceNumber} a été téléchargé. Vous pouvez maintenant l'ajouter à WhatsApp.`,
+          icon: '/favicon.ico'
+        })
+      } else {
+        // Fallback: afficher une alerte
+        alert(`✅ PDF téléchargé !\n\nLe fichier "${fileName}" a été téléchargé sur votre appareil.\n\nVous pouvez maintenant l'ajouter à votre message WhatsApp.`)
+      }
       
       // Nettoyer l'URL temporaire
       setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000)
@@ -2694,22 +2864,14 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
       console.error('Erreur lors de la génération du PDF pour WhatsApp:', error)
       
       // Fallback vers le message texte simple
-      const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
+      const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\n⚠️ Une erreur s'est produite lors de la génération du PDF. Veuillez utiliser le bouton "Télécharger PDF" pour obtenir votre facture.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      // Utiliser WhatsApp Web directement en cas d'erreur
+      const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+      window.open(webWhatsappUrl, '_blank')
       
-      if (isMobile) {
-        const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`
-        window.location.href = whatsappUrl
-        
-        setTimeout(() => {
-          const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-          window.open(webWhatsappUrl, '_blank')
-        }, 2000)
-      } else {
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-        window.open(whatsappUrl, '_blank')
-      }
+      // Afficher une alerte d'erreur
+      alert('❌ Erreur lors de la génération du PDF\n\nVeuillez utiliser le bouton "Télécharger PDF" pour obtenir votre facture, puis l\'ajouter manuellement à WhatsApp.')
     }
   }
   
@@ -2774,7 +2936,7 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         allowTaint: true,
         background: '#ffffff',
         width: 794, // 210mm en pixels (210 * 3.78)
-        height: 1123 // 297mm en pixels (297 * 3.78)
+        height: Math.min(clonedElement.scrollHeight, 1123) // Limiter à la hauteur A4 ou au contenu réel
       })
 
       // Nettoyer le clone
@@ -2792,20 +2954,26 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
       const imgWidth = 210 // Largeur A4 en mm
       const pageHeight = 297 // Hauteur A4 en mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
+      
+      // Si le contenu tient sur une page, l'afficher directement
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight)
+      } else {
+        // Si le contenu dépasse une page, le diviser
+        let heightLeft = imgHeight
+        let position = 0
 
-      let position = 0
-
-      // Ajouter l'image au PDF
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // Ajouter des pages supplémentaires si nécessaire
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
+        // Ajouter l'image au PDF
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
         heightLeft -= pageHeight
+
+        // Ajouter des pages supplémentaires seulement si nécessaire
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
       // Générer le PDF en blob
@@ -2958,7 +3126,7 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
 
   const handleDownloadPDF = async () => {
     try {
-      console.log('Téléchargement PDF en cours...')
+    console.log('Téléchargement PDF en cours...')
       
       // Importer jsPDF et html2canvas dynamiquement
       const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
@@ -3017,7 +3185,7 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         allowTaint: true,
         background: '#ffffff',
         width: 794, // 210mm en pixels (210 * 3.78)
-        height: 1123 // 297mm en pixels (297 * 3.78)
+        height: Math.min(clonedElement.scrollHeight, 1123) // Limiter à la hauteur A4 ou au contenu réel
       })
 
       // Nettoyer le clone
@@ -3035,25 +3203,152 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
       const imgWidth = 210 // Largeur A4 en mm
       const pageHeight = 297 // Hauteur A4 en mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
+      
+      // Si le contenu tient sur une page, l'afficher directement
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight)
+      } else {
+        // Si le contenu dépasse une page, le diviser
+        let heightLeft = imgHeight
+        let position = 0
 
-      let position = 0
-
-      // Ajouter l'image au PDF
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // Ajouter des pages supplémentaires si nécessaire
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
+        // Ajouter l'image au PDF
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
         heightLeft -= pageHeight
+
+        // Ajouter des pages supplémentaires seulement si nécessaire
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
       }
 
-      // Télécharger le PDF
+      // Télécharger le PDF avec gestion mobile
       const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
-      pdf.save(fileName)
+      
+      // Détecter si c'est un appareil mobile
+      const isMobileDownload = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobileDownload) {
+        // Sur mobile, générer un blob et ouvrir dans un nouvel onglet
+        const pdfBlob = pdf.output('blob')
+        const pdfUrl = URL.createObjectURL(pdfBlob)
+        
+        const newWindow = window.open('', '_blank')
+        if (newWindow) {
+          newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>${fileName}</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body {
+                    margin: 0;
+                    padding: 20px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    background: #f5f5f5;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                  }
+                  .container {
+                    background: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                    max-width: 400px;
+                    width: 100%;
+                  }
+                  .icon {
+                    font-size: 48px;
+                    margin-bottom: 20px;
+                  }
+                  h1 {
+                    color: #333;
+                    margin-bottom: 15px;
+                    font-size: 24px;
+                  }
+                  p {
+                    color: #666;
+                    margin-bottom: 20px;
+                    line-height: 1.5;
+                  }
+                  .download-btn {
+                    background: #007bff;
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    text-decoration: none;
+                    display: inline-block;
+                    margin: 10px;
+                    transition: background 0.3s;
+                  }
+                  .download-btn:hover {
+                    background: #0056b3;
+                  }
+                  .back-btn {
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    text-decoration: none;
+                    display: inline-block;
+                    margin: 10px;
+                  }
+                  .back-btn:hover {
+                    background: #5a6268;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="icon">📄</div>
+                  <h1>Facture Prête</h1>
+                  <p>Votre facture <strong>${invoiceData.invoiceNumber}</strong> est prête à être téléchargée.</p>
+                  <p>Cliquez sur le bouton ci-dessous pour télécharger le PDF :</p>
+                  <a href="${pdfUrl}" download="${fileName}" class="download-btn">
+                    📥 Télécharger PDF
+                  </a>
+                  <br>
+                  <button onclick="window.close()" class="back-btn">
+                    ← Retour
+                  </button>
+                </div>
+                <script>
+                  // Auto-téléchargement après 2 secondes
+                  setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = '${pdfUrl}';
+                    link.download = '${fileName}';
+                    link.click();
+                  }, 2000);
+                </script>
+              </body>
+            </html>
+          `)
+          newWindow.document.close()
+        }
+        
+        // Nettoyer l'URL temporaire après 10 secondes
+        setTimeout(() => URL.revokeObjectURL(pdfUrl), 10000)
+      } else {
+        // Sur desktop, téléchargement direct
+        pdf.save(fileName)
+      }
 
       console.log('PDF téléchargé avec succès')
     } catch (error) {
@@ -3065,6 +3360,9 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[100vw] h-[100vh] max-w-none max-h-none m-0 p-0 rounded-none overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="sr-only">Aperçu de la Facture</DialogTitle>
+        </DialogHeader>
         {/* Header fixe */}
         <div className="sticky top-0 z-50 bg-white border-b p-3 sm:p-4 shadow-sm">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -3097,86 +3395,86 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         {/* Contenu scrollable */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
 
-          {/* Sélecteur de template avec aperçu */}
-          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+        {/* Sélecteur de template avec aperçu */}
+        <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <Palette className="h-4 w-4 text-purple-600" />
                 <span>Choisir un template</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
-                {templates.map((template) => (
-                  <div
-                    key={template.id}
+              {templates.map((template) => (
+                <div
+                  key={template.id}
                     className={`relative cursor-pointer rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
-                      selectedTemplate === template.id
-                        ? 'border-purple-500 bg-purple-50 shadow-md'
-                        : 'border-gray-200 bg-white hover:border-purple-300'
-                    }`}
-                    onClick={() => setSelectedTemplate(template.id)}
-                  >
+                    selectedTemplate === template.id
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 bg-white hover:border-purple-300'
+                  }`}
+                  onClick={() => setSelectedTemplate(template.id)}
+                >
                     <div className="p-2 sm:p-3">
                       <div className="text-center mb-2">
-                        <span className="text-lg sm:text-xl">{template.preview}</span>
-                      </div>
-                      <div className="text-center">
+                      <span className="text-lg sm:text-xl">{template.preview}</span>
+                    </div>
+                    <div className="text-center">
                         <div className="font-medium text-xs text-gray-900">{template.name}</div>
                         <div className="text-[10px] text-gray-500 mt-1 leading-tight hidden sm:block">{template.description}</div>
-                      </div>
                     </div>
-                    {selectedTemplate === template.id && (
+                  </div>
+                  {selectedTemplate === template.id && (
                       <div className="absolute top-1 right-1">
                         <div className="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
                           <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Section de partage */}
-          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+        {/* Section de partage */}
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <Share2 className="h-4 w-4 text-primary" />
                 <span>Partager la facture</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button 
-                  onClick={handleShareWhatsApp}
+              <Button 
+                onClick={handleShareWhatsApp}
                   className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
-                  size="sm"
-                >
+                size="sm"
+              >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   <span>WhatsApp</span>
-                </Button>
-                <Button 
-                  onClick={handleShareEmail}
+              </Button>
+              <Button 
+                onClick={handleShareEmail}
                   className="bg-blue-600 hover:bg-blue-700 text-white flex-1 sm:flex-none"
-                  size="sm"
-                >
+                size="sm"
+              >
                   <Mail className="h-4 w-4 mr-2" />
                   <span>Email</span>
-                </Button>
-              </div>
+              </Button>
+            </div>
               <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
-                Envoyez directement la facture à votre client via WhatsApp ou Email
-              </p>
-            </CardContent>
-          </Card>
+              Envoyez directement la facture à votre client via WhatsApp ou Email
+            </p>
+          </CardContent>
+        </Card>
 
-          {/* Rendu du template sélectionné */}
+        {/* Rendu du template sélectionné */}
           <div data-invoice-content className="invoice-template">
-            {renderTemplate(selectedTemplate, invoiceData)}
+          {renderTemplate(selectedTemplate, invoiceData)}
           </div>
         </div>
       </DialogContent>
