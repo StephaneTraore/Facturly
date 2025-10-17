@@ -2553,45 +2553,289 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
 
   const handleShareWhatsApp = async () => {
     try {
-      // Capturer la facture en image
-      const invoiceImage = await captureInvoiceAsImage()
+      console.log('Génération du PDF pour WhatsApp...')
       
-      // Créer un message avec l'image
+      // Importer jsPDF et html2canvas dynamiquement
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas')
+      ])
+
+      // Sélectionner l'élément de la facture
+      const invoiceElement = document.querySelector('[data-invoice-content]') as HTMLElement
+      if (!invoiceElement) {
+        throw new Error('Élément de facture non trouvé')
+      }
+
+      // Créer un clone de l'élément pour le formatage A4
+      const clonedElement = invoiceElement.cloneNode(true) as HTMLElement
+      
+      // Appliquer des styles spécifiques pour le PDF A4
+      clonedElement.style.width = '210mm' // Largeur A4
+      clonedElement.style.minHeight = '297mm' // Hauteur A4
+      clonedElement.style.maxWidth = '210mm'
+      clonedElement.style.padding = '20mm'
+      clonedElement.style.margin = '0'
+      clonedElement.style.backgroundColor = '#ffffff'
+      clonedElement.style.fontSize = '12px'
+      clonedElement.style.lineHeight = '1.4'
+      clonedElement.style.color = '#000000'
+      clonedElement.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      clonedElement.style.boxSizing = 'border-box'
+      clonedElement.style.position = 'relative'
+      clonedElement.style.overflow = 'visible'
+      
+      // Optimiser les styles des éléments enfants pour le PDF
+      const allElements = clonedElement.querySelectorAll('*')
+      allElements.forEach((element: HTMLElement) => {
+        element.style.boxSizing = 'border-box'
+        element.style.wordWrap = 'break-word'
+        element.style.hyphens = 'auto'
+        
+        // Ajuster les tailles de police pour le PDF
+        const computedStyle = window.getComputedStyle(element)
+        const fontSize = parseFloat(computedStyle.fontSize)
+        if (fontSize > 16) {
+          element.style.fontSize = '14px'
+        } else if (fontSize < 10) {
+          element.style.fontSize = '10px'
+        }
+      })
+      
+      // Masquer temporairement l'élément original et afficher le clone
+      invoiceElement.style.display = 'none'
+      document.body.appendChild(clonedElement)
+
+      // Capturer l'élément avec html2canvas
+      const canvas = await html2canvas(clonedElement, {
+        useCORS: true,
+        allowTaint: true,
+        background: '#ffffff',
+        width: 794, // 210mm en pixels (210 * 3.78)
+        height: 1123 // 297mm en pixels (297 * 3.78)
+      })
+
+      // Nettoyer le clone
+      document.body.removeChild(clonedElement)
+      invoiceElement.style.display = 'block'
+
+      // Créer le PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      // Calculer les dimensions pour A4
+      const imgWidth = 210 // Largeur A4 en mm
+      const pageHeight = 297 // Hauteur A4 en mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+
+      let position = 0
+
+      // Ajouter l'image au PDF
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      // Ajouter des pages supplémentaires si nécessaire
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      // Générer le PDF en blob
+      const pdfBlob = pdf.output('blob')
+      const pdfUrl = URL.createObjectURL(pdfBlob)
+      
+      // Créer un message pour WhatsApp
       const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
-      // Pour WhatsApp, on ne peut pas envoyer d'image directement via URL
-      // On va ouvrir WhatsApp avec le message et l'utilisateur pourra ajouter l'image manuellement
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message + '\n\n[Image de la facture à ajouter]')}`
-      window.open(whatsappUrl, '_blank')
+      // Détecter si c'est un appareil mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
       
-      // Télécharger automatiquement l'image pour que l'utilisateur puisse l'ajouter
-      downloadImage(invoiceImage, `facture-${invoiceData.invoiceNumber}.png`)
+      if (isMobile) {
+        // Sur mobile, essayer d'ouvrir l'app WhatsApp directement
+        const phoneNumber = '' // Vous pouvez ajouter un numéro par défaut si nécessaire
+        const whatsappUrl = phoneNumber 
+          ? `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
+          : `whatsapp://send?text=${encodeURIComponent(message)}`
+        
+        // Essayer d'ouvrir l'app WhatsApp
+        window.location.href = whatsappUrl
+        
+        // Fallback après un délai si l'app ne s'ouvre pas
+        setTimeout(() => {
+          const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+          window.open(webWhatsappUrl, '_blank')
+        }, 2000)
+      } else {
+        // Sur desktop, ouvrir WhatsApp Web
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+        window.open(whatsappUrl, '_blank')
+      }
+      
+      // Télécharger le PDF automatiquement
+      const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
+      const link = document.createElement('a')
+      link.download = fileName
+      link.href = pdfUrl
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      // Nettoyer l'URL temporaire
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000)
+      
+      console.log('PDF généré et WhatsApp ouvert avec succès')
     } catch (error) {
-      console.error('Erreur lors de la génération de l\'image:', error)
-      // Fallback vers le message texte
+      console.error('Erreur lors de la génération du PDF pour WhatsApp:', error)
+      
+      // Fallback vers le message texte simple
       const message = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber} d'un montant de ${invoiceData.total.toFixed(2)} GNF.\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-      window.open(whatsappUrl, '_blank')
+      
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobile) {
+        const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(message)}`
+        window.location.href = whatsappUrl
+        
+        setTimeout(() => {
+          const webWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+          window.open(webWhatsappUrl, '_blank')
+        }, 2000)
+      } else {
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
+        window.open(whatsappUrl, '_blank')
+      }
     }
   }
   
   const handleShareEmail = async () => {
     try {
-      // Capturer la facture en image
-      const invoiceImage = await captureInvoiceAsImage()
+      console.log('Génération du PDF pour Email...')
+      
+      // Importer jsPDF et html2canvas dynamiquement
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas')
+      ])
+
+      // Sélectionner l'élément de la facture
+      const invoiceElement = document.querySelector('[data-invoice-content]') as HTMLElement
+      if (!invoiceElement) {
+        throw new Error('Élément de facture non trouvé')
+      }
+
+      // Créer un clone de l'élément pour le formatage A4
+      const clonedElement = invoiceElement.cloneNode(true) as HTMLElement
+      
+      // Appliquer des styles spécifiques pour le PDF A4
+      clonedElement.style.width = '210mm' // Largeur A4
+      clonedElement.style.minHeight = '297mm' // Hauteur A4
+      clonedElement.style.maxWidth = '210mm'
+      clonedElement.style.padding = '20mm'
+      clonedElement.style.margin = '0'
+      clonedElement.style.backgroundColor = '#ffffff'
+      clonedElement.style.fontSize = '12px'
+      clonedElement.style.lineHeight = '1.4'
+      clonedElement.style.color = '#000000'
+      clonedElement.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      clonedElement.style.boxSizing = 'border-box'
+      clonedElement.style.position = 'relative'
+      clonedElement.style.overflow = 'visible'
+      
+      // Optimiser les styles des éléments enfants pour le PDF
+      const allElements = clonedElement.querySelectorAll('*')
+      allElements.forEach((element: HTMLElement) => {
+        element.style.boxSizing = 'border-box'
+        element.style.wordWrap = 'break-word'
+        element.style.hyphens = 'auto'
+        
+        // Ajuster les tailles de police pour le PDF
+        const computedStyle = window.getComputedStyle(element)
+        const fontSize = parseFloat(computedStyle.fontSize)
+        if (fontSize > 16) {
+          element.style.fontSize = '14px'
+        } else if (fontSize < 10) {
+          element.style.fontSize = '10px'
+        }
+      })
+      
+      // Masquer temporairement l'élément original et afficher le clone
+      invoiceElement.style.display = 'none'
+      document.body.appendChild(clonedElement)
+
+      // Capturer l'élément avec html2canvas
+      const canvas = await html2canvas(clonedElement, {
+        useCORS: true,
+        allowTaint: true,
+        background: '#ffffff',
+        width: 794, // 210mm en pixels (210 * 3.78)
+        height: 1123 // 297mm en pixels (297 * 3.78)
+      })
+
+      // Nettoyer le clone
+      document.body.removeChild(clonedElement)
+      invoiceElement.style.display = 'block'
+
+      // Créer le PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      // Calculer les dimensions pour A4
+      const imgWidth = 210 // Largeur A4 en mm
+      const pageHeight = 297 // Hauteur A4 en mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+
+      let position = 0
+
+      // Ajouter l'image au PDF
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      // Ajouter des pages supplémentaires si nécessaire
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      // Générer le PDF en blob
+      const pdfBlob = pdf.output('blob')
+      const pdfUrl = URL.createObjectURL(pdfBlob)
       
       const subject = `Facture n°${invoiceData.invoiceNumber} - ${invoiceData.clientName}`
       const body = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber}.\n\nDétails de la facture :\n- Date d'émission : ${new Date(invoiceData.issueDate).toLocaleDateString('fr-FR')}\n- Date d'échéance : ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}\n- Montant total : ${invoiceData.total.toFixed(2)} GNF\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
-      // Télécharger l'image de la facture
-      downloadImage(invoiceImage, `facture-${invoiceData.invoiceNumber}.png`)
+      // Télécharger le PDF automatiquement
+      const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
+      const link = document.createElement('a')
+      link.download = fileName
+      link.href = pdfUrl
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
       
       // Ouvrir l'email avec le message
-      const mailtoUrl = `mailto:${invoiceData.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\n[Image de la facture téléchargée]')}`
+      const mailtoUrl = `mailto:${invoiceData.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\n[PDF de la facture téléchargé]')}`
       window.location.href = mailtoUrl
+      
+      // Nettoyer l'URL temporaire
+      setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000)
+      
+      console.log('PDF généré et Email ouvert avec succès')
     } catch (error) {
-      console.error('Erreur lors de la génération de l\'image:', error)
-      // Fallback vers le message texte
+      console.error('Erreur lors de la génération du PDF pour Email:', error)
+      
+      // Fallback vers le message texte simple
       const subject = `Facture n°${invoiceData.invoiceNumber} - ${invoiceData.clientName}`
       const body = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber}.\n\nDétails de la facture :\n- Date d'émission : ${new Date(invoiceData.issueDate).toLocaleDateString('fr-FR')}\n- Date d'échéance : ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}\n- Montant total : ${invoiceData.total.toFixed(2)} GNF\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
