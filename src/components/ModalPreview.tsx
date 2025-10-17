@@ -2546,190 +2546,57 @@ const downloadImage = (imageDataUrl: string, filename: string) => {
 }
 
 
-// Fonction utilitaire pour télécharger un PDF sur mobile iOS/Android
-const downloadPDFOnMobile = (pdf: any, fileName: string, invoiceNumber: string) => {
-  // Générer le PDF en base64
-  const pdfBase64 = pdf.output('datauristring')
-  
-  // Créer une page de téléchargement optimisée pour mobile
-  const downloadPage = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${fileName}</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-          }
-          .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            max-width: 400px;
-            width: 100%;
-          }
-          .icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-          }
-          @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-          }
-          h1 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 28px;
-            font-weight: 700;
-          }
-          .invoice-number {
-            background: #f8f9fa;
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin: 20px 0;
-            font-weight: 600;
-            color: #495057;
-          }
-          p {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            font-size: 16px;
-          }
-          .download-btn {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin: 15px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-          }
-          .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-          }
-          .download-btn:active {
-            transform: translateY(0);
-          }
-          .back-btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            margin: 10px;
-            transition: all 0.3s ease;
-          }
-          .back-btn:hover {
-            background: #5a6268;
-            transform: translateY(-1px);
-          }
-          .instructions {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 14px;
-            color: #1565c0;
-          }
-          .instructions strong {
-            display: block;
-            margin-bottom: 5px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="icon">📄</div>
-          <h1>Facture Prête</h1>
-          <div class="invoice-number">Facture #${invoiceNumber}</div>
-          <p>Votre facture est prête à être téléchargée !</p>
-          
-          <div class="instructions">
-            <strong>Instructions :</strong>
-            <br>• Cliquez sur "Télécharger PDF" ci-dessous
-            <br>• Le fichier sera sauvegardé dans vos téléchargements
-            <br>• Vous pourrez ensuite le partager via WhatsApp
-          </div>
-          
-          <a href="${pdfBase64}" download="${fileName}" class="download-btn">
-            📥 Télécharger PDF
-          </a>
-          
-          <br>
-          <button onclick="window.close()" class="back-btn">
-            ← Retour à l'application
-          </button>
-        </div>
+// Fonction utilitaire pour téléchargement direct sur tous les appareils
+const downloadPDFDirect = (pdf: any, fileName: string) => {
+  try {
+    // Méthode 1: Essayer le téléchargement direct avec save()
+    pdf.save(fileName)
+    return true
+  } catch (error) {
+    console.log('Méthode save() échouée, essai avec base64...')
+    
+    try {
+      // Méthode 2: Utiliser base64 avec un lien de téléchargement
+      const pdfBase64 = pdf.output('datauristring')
+      
+      // Créer un lien de téléchargement temporaire
+      const link = document.createElement('a')
+      link.href = pdfBase64
+      link.download = fileName
+      link.style.display = 'none'
+      
+      // Ajouter au DOM, cliquer, puis supprimer
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      return true
+    } catch (error2) {
+      console.log('Méthode base64 échouée, essai avec blob...')
+      
+      try {
+        // Méthode 3: Utiliser blob comme fallback
+        const pdfBlob = pdf.output('blob')
+        const blobUrl = URL.createObjectURL(pdfBlob)
         
-        <script>
-          // Auto-téléchargement après 3 secondes
-          setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = '${pdfBase64}';
-            link.download = '${fileName}';
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Afficher un message de confirmation
-            setTimeout(() => {
-              const btn = document.querySelector('.download-btn');
-              if (btn) {
-                btn.innerHTML = '✅ Téléchargé !';
-                btn.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
-              }
-            }, 1000);
-          }, 3000);
-          
-          // Gérer le clic manuel
-          document.querySelector('.download-btn').addEventListener('click', function(e) {
-            setTimeout(() => {
-              this.innerHTML = '✅ Téléchargé !';
-              this.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
-            }, 500);
-          });
-        </script>
-      </body>
-    </html>
-  `
-  
-  // Ouvrir dans un nouvel onglet
-  const newWindow = window.open('', '_blank')
-  if (newWindow) {
-    newWindow.document.write(downloadPage)
-    newWindow.document.close()
+        const link = document.createElement('a')
+        link.href = blobUrl
+        link.download = fileName
+        link.style.display = 'none'
+        
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        // Nettoyer l'URL blob après un délai
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+        
+        return true
+      } catch (error3) {
+        console.error('Toutes les méthodes de téléchargement ont échoué:', error3)
+        return false
+      }
+    }
   }
 }
 
@@ -2904,18 +2771,14 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
       // Ouvrir WhatsApp
       openWhatsApp()
       
-      // Télécharger le PDF avec la nouvelle méthode
+      // Télécharger le PDF avec téléchargement direct
       const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
       
-      // Détecter si c'est un appareil mobile
-      const isMobileDownload = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      // Utiliser la fonction de téléchargement direct universelle
+      const downloadSuccess = downloadPDFDirect(pdf, fileName)
       
-      if (isMobileDownload) {
-        // Utiliser la nouvelle fonction de téléchargement mobile
-        downloadPDFOnMobile(pdf, fileName, invoiceData.invoiceNumber)
-      } else {
-        // Sur desktop, téléchargement direct
-        pdf.save(fileName)
+      if (!downloadSuccess) {
+        alert('Erreur lors du téléchargement. Veuillez réessayer.')
       }
       
       // Afficher une notification à l'utilisateur
@@ -3048,27 +2911,20 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         }
       }
 
-      // Générer le PDF en blob
-      const pdfBlob = pdf.output('blob')
-      const pdfUrl = URL.createObjectURL(pdfBlob)
-      
       const subject = `Facture n°${invoiceData.invoiceNumber} - ${invoiceData.clientName}`
       const body = `Bonjour ${invoiceData.clientName},\n\nVeuillez trouver ci-joint votre facture n°${invoiceData.invoiceNumber}.\n\nDétails de la facture :\n- Date d'émission : ${new Date(invoiceData.issueDate).toLocaleDateString('fr-FR')}\n- Date d'échéance : ${new Date(invoiceData.dueDate).toLocaleDateString('fr-FR')}\n- Montant total : ${invoiceData.total.toFixed(2)} GNF\n\nMerci pour votre confiance !\n\nCordialement,\nL'équipe Facturly`
       
-      // Télécharger le PDF automatiquement
+      // Télécharger le PDF avec téléchargement direct
       const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
-      const link = document.createElement('a')
-      link.download = fileName
-      link.href = pdfUrl
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const downloadSuccess = downloadPDFDirect(pdf, fileName)
+      
+      if (!downloadSuccess) {
+        alert('Erreur lors du téléchargement. Veuillez réessayer.')
+      }
       
       // Ouvrir l'email avec le message
       const mailtoUrl = `mailto:${invoiceData.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\n[PDF de la facture téléchargé]')}`
       window.location.href = mailtoUrl
-      
-      // Pas de nettoyage nécessaire avec la nouvelle méthode
       
       console.log('PDF généré et Email ouvert avec succès')
     } catch (error) {
@@ -3296,18 +3152,14 @@ export function ModalPreview({ isOpen, onClose, invoiceData }: ModalPreviewProps
         }
       }
 
-      // Télécharger le PDF avec la nouvelle méthode
+      // Télécharger le PDF avec téléchargement direct
       const fileName = `facture-${invoiceData.invoiceNumber}-${new Date().toISOString().split('T')[0]}.pdf`
       
-      // Détecter si c'est un appareil mobile
-      const isMobileDownload = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      // Utiliser la fonction de téléchargement direct universelle
+      const downloadSuccess = downloadPDFDirect(pdf, fileName)
       
-      if (isMobileDownload) {
-        // Utiliser la nouvelle fonction de téléchargement mobile
-        downloadPDFOnMobile(pdf, fileName, invoiceData.invoiceNumber)
-      } else {
-        // Sur desktop, téléchargement direct
-        pdf.save(fileName)
+      if (!downloadSuccess) {
+        alert('Erreur lors du téléchargement. Veuillez réessayer.')
       }
 
       console.log('PDF téléchargé avec succès')
